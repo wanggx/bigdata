@@ -109,6 +109,9 @@ object SparkSubmit extends CommandLineUtils {
   // scalastyle:on println
 
   override def main(args: Array[String]): Unit = {
+    /* 解析spark-submit传递的参数，并处理默认参数，
+     * 不过不一定是spark-submit
+     */
     val appArgs = new SparkSubmitArguments(args)
     if (appArgs.verbose) {
       // scalastyle:off println

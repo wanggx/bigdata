@@ -67,6 +67,7 @@ private[deploy] class SparkSubmitArguments(args: Seq[String], env: Map[String, S
   var isR: Boolean = false
   var action: SparkSubmitAction = null
   val sparkProperties: HashMap[String, String] = new HashMap[String, String]()
+  /* 代理用户 */
   var proxyUser: String = null
   var principal: String = null
   var keytab: String = null
