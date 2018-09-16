@@ -151,6 +151,7 @@ private[spark] class TaskSchedulerImpl private[scheduler](
     this.dagScheduler = dagScheduler
   }
 
+  /* 使用backend来初始化taskschedule */
   def initialize(backend: SchedulerBackend) {
     this.backend = backend
     schedulableBuilder = {

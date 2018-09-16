@@ -498,6 +498,7 @@ class SparkContext(config: SparkConf) extends Logging {
       HeartbeatReceiver.ENDPOINT_NAME, new HeartbeatReceiver(this))
 
     // Create and start the scheduler
+    /* 根据传递的master地址来决定对应的backend和ts */
     val (sched, ts) = SparkContext.createTaskScheduler(this, master, deployMode)
     _schedulerBackend = sched
     _taskScheduler = ts
@@ -2772,6 +2773,7 @@ object SparkContext extends Logging {
     }
   }
 
+  /* 根据masterurl来创建集群管理器 */
   private def getClusterManager(url: String): Option[ExternalClusterManager] = {
     val loader = Utils.getContextOrSparkClassLoader
     val serviceLoaders =
