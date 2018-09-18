@@ -44,6 +44,7 @@ private[netty] class Dispatcher(nettyEnv: NettyRpcEnv) extends Logging {
 
   private val endpoints: ConcurrentMap[String, EndpointData] =
     new ConcurrentHashMap[String, EndpointData]
+  /* 保存注册的endpoint */
   private val endpointRefs: ConcurrentMap[RpcEndpoint, RpcEndpointRef] =
     new ConcurrentHashMap[RpcEndpoint, RpcEndpointRef]
 
@@ -142,6 +143,7 @@ private[netty] class Dispatcher(nettyEnv: NettyRpcEnv) extends Logging {
    * @param message the message to post
    * @param callbackIfStopped callback function if the endpoint is stopped.
    */
+  /* rpc收到消息之后，将消息发送出去 */
   private def postMessage(
       endpointName: String,
       message: InboxMessage,

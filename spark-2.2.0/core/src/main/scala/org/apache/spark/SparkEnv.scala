@@ -220,7 +220,7 @@ object SparkEnv extends Logging {
       executorId: String,
       bindAddress: String,
       advertiseAddress: String,
-      port: Int,
+      port: Int,      /* driver对应的port */
       isLocal: Boolean,
       numUsableCores: Int,
       ioEncryptionKey: Option[Array[Byte]],
