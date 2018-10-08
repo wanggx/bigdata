@@ -43,6 +43,7 @@ import org.apache.spark.network.util.TransportConf;
 /**
  * Server for the efficient, low-level streaming service.
  */
+/* netty的server类 */
 public class TransportServer implements Closeable {
   private static final Logger logger = LoggerFactory.getLogger(TransportServer.class);
 
@@ -85,6 +86,7 @@ public class TransportServer implements Closeable {
     return port;
   }
 
+  /* 初始化netty环境 */
   private void init(String hostToBind, int portToBind) {
 
     IOMode ioMode = IOMode.valueOf(conf.ioMode());

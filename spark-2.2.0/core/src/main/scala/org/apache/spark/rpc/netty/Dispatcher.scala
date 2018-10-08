@@ -58,8 +58,10 @@ private[netty] class Dispatcher(nettyEnv: NettyRpcEnv) extends Logging {
   @GuardedBy("this")
   private var stopped = false
 
+  /* 注册RPC端点 */
   def registerRpcEndpoint(name: String, endpoint: RpcEndpoint): NettyRpcEndpointRef = {
     val addr = RpcEndpointAddress(nettyEnv.address, name)
+    /* 创建一个rpc端点的引用 */
     val endpointRef = new NettyRpcEndpointRef(nettyEnv.conf, addr, nettyEnv)
     synchronized {
       if (stopped) {

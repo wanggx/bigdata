@@ -2215,6 +2215,7 @@ private[spark] object Utils extends Logging {
    * @param serviceName Name of the service.
    * @return (service: T, port: Int)
    */
+  /* 使用指定端口和启动函数来启动RPC服务 */
   def startServiceOnPort[T](
       startPort: Int,
       startService: Int => (T, Int),

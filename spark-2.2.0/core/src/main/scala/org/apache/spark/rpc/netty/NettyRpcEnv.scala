@@ -40,6 +40,7 @@ import org.apache.spark.rpc._
 import org.apache.spark.serializer.{JavaSerializer, JavaSerializerInstance, SerializationStream}
 import org.apache.spark.util.{ByteBufferInputStream, ByteBufferOutputStream, ThreadUtils, Utils}
 
+/* RPC环境类 */
 private[netty] class NettyRpcEnv(
     val conf: SparkConf,
     javaSerializerInstance: JavaSerializerInstance,
@@ -108,6 +109,7 @@ private[netty] class NettyRpcEnv(
     }
   }
 
+  /* 启动RPC服务端 */
   def startServer(bindAddress: String, port: Int): Unit = {
     val bootstraps: java.util.List[TransportServerBootstrap] =
       if (securityManager.isAuthenticationEnabled()) {
@@ -115,6 +117,7 @@ private[netty] class NettyRpcEnv(
       } else {
         java.util.Collections.emptyList()
       }
+    /* 创建一个netty的server */
     server = transportContext.createServer(bindAddress, port, bootstraps)
     dispatcher.registerRpcEndpoint(
       RpcEndpointVerifier.NAME, new RpcEndpointVerifier(this, dispatcher))
@@ -438,8 +441,10 @@ private[netty] object NettyRpcEnv extends Logging {
 
 }
 
+/* 创建NettyRPC环境的工厂类 */
 private[rpc] class NettyRpcEnvFactory extends RpcEnvFactory with Logging {
 
+  /* 创建一个RPC环境 */
   def create(config: RpcEnvConfig): RpcEnv = {
     val sparkConf = config.conf
     // Use JavaSerializerInstance in multiple threads is safe. However, if we plan to support
@@ -449,6 +454,7 @@ private[rpc] class NettyRpcEnvFactory extends RpcEnvFactory with Logging {
     val nettyEnv =
       new NettyRpcEnv(sparkConf, javaSerializerInstance, config.advertiseAddress,
         config.securityManager)
+    /* 如果是服务端模式 */
     if (!config.clientMode) {
       val startNettyRpcEnv: Int => (NettyRpcEnv, Int) = { actualPort =>
         nettyEnv.startServer(config.bindAddress, actualPort)
@@ -621,6 +627,7 @@ private[netty] case class RpcFailure(e: Throwable)
  * RpcEnv, multiple connection / disconnection events will be created for that client (albeit
  * with different `RpcAddress` information).
  */
+/* RPC消息处理类，dispatch对消息进行分发 */
 private[netty] class NettyRpcHandler(
     dispatcher: Dispatcher,
     nettyEnv: NettyRpcEnv,

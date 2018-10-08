@@ -243,6 +243,8 @@ object SparkEnv extends Logging {
     }
 
     val systemName = if (isDriver) driverSystemName else executorSystemName
+
+    /* 创建底层通信的RPC环境，根据是否driver来判断创建的RPC是否是服务端 */
     val rpcEnv = RpcEnv.create(systemName, bindAddress, advertiseAddress, port, conf,
       securityManager, clientMode = !isDriver)
 
