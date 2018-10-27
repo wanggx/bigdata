@@ -57,6 +57,7 @@ class JobGenerator(jobScheduler: JobScheduler) extends Logging {
     }
   }
 
+  /* 注意这里就是在创建StreamingContext的时候传递的batchDuration  */
   private val timer = new RecurringTimer(clock, ssc.graph.batchDuration.milliseconds,
     longTime => eventLoop.post(GenerateJobs(new Time(longTime))), "JobGenerator")
 
@@ -290,6 +291,7 @@ class JobGenerator(jobScheduler: JobScheduler) extends Logging {
   }
 
   /** Perform checkpoint for the given `time`. */
+  /* 在时间点做一个备份 */
   private def doCheckpoint(time: Time, clearCheckpointDataLater: Boolean) {
     if (shouldCheckpoint && (time - graph.zeroTime).isMultipleOf(ssc.checkpointDuration)) {
       logInfo("Checkpointing graph for time " + time)

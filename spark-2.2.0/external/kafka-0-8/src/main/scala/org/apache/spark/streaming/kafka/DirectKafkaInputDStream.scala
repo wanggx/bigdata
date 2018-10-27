@@ -154,6 +154,7 @@ class DirectKafkaInputDStream[
     }.getOrElse(leaderOffsets)
   }
 
+  /* 开始计算从Kafka中获取数据并生成新的RDD */
   override def compute(validTime: Time): Option[KafkaRDD[K, V, U, T, R]] = {
     val untilOffsets = clamp(latestLeaderOffsets(maxRetries))
     val rdd = KafkaRDD[K, V, U, T, R](
