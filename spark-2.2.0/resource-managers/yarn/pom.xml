@@ -21,7 +21,6 @@
     <groupId>org.apache.spark</groupId>
     <artifactId>spark-parent_2.11</artifactId>
     <version>2.2.0</version>
-    <relativePath>../../pom.xml</relativePath>
   </parent>
 
   <artifactId>spark-yarn_2.11</artifactId>
