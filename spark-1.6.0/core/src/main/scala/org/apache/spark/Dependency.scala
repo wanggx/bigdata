@@ -76,6 +76,7 @@ class ShuffleDependency[K: ClassTag, V: ClassTag, C: ClassTag](
     val mapSideCombine: Boolean = false)
   extends Dependency[Product2[K, V]] {
 
+  /* 依赖对应的rdd */
   override def rdd: RDD[Product2[K, V]] = _rdd.asInstanceOf[RDD[Product2[K, V]]]
 
   private[spark] val keyClassName: String = reflect.classTag[K].runtimeClass.getName
@@ -85,6 +86,8 @@ class ShuffleDependency[K: ClassTag, V: ClassTag, C: ClassTag](
   private[spark] val combinerClassName: Option[String] =
     Option(reflect.classTag[C]).map(_.runtimeClass.getName)
 
+  /* shuffle的id，因为以shuffle来分割Stage，所以在解析Stage的依赖的时候，
+   * 可以根据ShuffleDep来快速的获取依赖Stage，如果没有则继续解析 */
   val shuffleId: Int = _rdd.context.newShuffleId()
 
   val shuffleHandle: ShuffleHandle = _rdd.context.env.shuffleManager.registerShuffle(

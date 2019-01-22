@@ -1839,8 +1839,9 @@ class SparkContext(config: SparkConf) extends Logging with ExecutorAllocationCli
    */
   def runJob[T, U: ClassTag](
       rdd: RDD[T],
-      func: (TaskContext, Iterator[T]) => U,
+      func: (TaskContext, Iterator[T]) => U,    /* 每个分区产生一个U类型的结果 */
       partitions: Seq[Int]): Array[U] = {
+    /* 总共有partitions.size个分区，每个分区有一个结果 */
     val results = new Array[U](partitions.size)
     runJob[T, U](rdd, func, partitions, (index, res) => results(index) = res)
     results

@@ -920,11 +920,16 @@ abstract class RDD[T: ClassTag](
     sc.runJob(this, (iter: Iterator[T]) => cleanF(iter))
   }
 
+
+  /* collect action 其实也是对rdd的分区进行一个一个的处理，可以参见上方
+   * foreachPartition函数，都是使用函数对分区进行操作。
+   */
   /**
    * Return an array that contains all of the elements in this RDD.
    */
   def collect(): Array[T] = withScope {
     val results = sc.runJob(this, (iter: Iterator[T]) => iter.toArray)
+    /* 将数组的多个元素作为参数传入 */
     Array.concat(results: _*)
   }
 

@@ -31,6 +31,11 @@ import org.apache.spark.Logging
  * Note: The event queue will grow indefinitely. So subclasses should make sure `onReceive` can
  * handle events in time to avoid the potential OOM.
  */
+
+
+/* 事件循环，每个事件循环里面都是一个线程来负责处理事件，
+ * 注意是单线程，然后配合一个阻塞队列
+ * */
 private[spark] abstract class EventLoop[E](name: String) extends Logging {
 
   private val eventQueue: BlockingQueue[E] = new LinkedBlockingDeque[E]()

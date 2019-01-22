@@ -45,6 +45,7 @@ private[spark] class ShuffleMapStage(
 
   private[this] var _mapStageJobs: List[ActiveJob] = Nil
 
+  /* 首先是默认一个Stage当中一个task都没有被计算 */
   private[this] var _numAvailableOutputs: Int = 0
 
   /**
@@ -93,6 +94,7 @@ private[spark] class ShuffleMapStage(
     missing
   }
 
+  /* 有一个分区计算完成，则增加一个可用结果 */
   def addOutputLoc(partition: Int, status: MapStatus): Unit = {
     val prevList = outputLocs(partition)
     outputLocs(partition) = status :: prevList

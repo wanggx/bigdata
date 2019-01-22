@@ -21,6 +21,7 @@ package org.apache.spark.scheduler
  * An object that waits for a DAGScheduler job to complete. As tasks finish, it passes their
  * results to the given handler function.
  */
+/* JobWaiter在等待Job的完成情况，Job提交之后，JobWaiter就开始同步等待 */
 private[spark] class JobWaiter[T](
     dagScheduler: DAGScheduler,
     val jobId: Int,
