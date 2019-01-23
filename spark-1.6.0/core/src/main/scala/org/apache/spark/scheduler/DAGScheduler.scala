@@ -456,7 +456,7 @@ class DAGScheduler(
     parents
   }
 
-  /* 注意和少了Missing的函数区别， */
+  /* 注意和少了Missing的函数区别，获取还没有计算完成的Stage */
   private def getMissingParentStages(stage: Stage): List[Stage] = {
     val missing = new HashSet[Stage]
     val visited = new HashSet[RDD[_]]
@@ -894,6 +894,7 @@ class DAGScheduler(
     finalStage.setActiveJob(job)
     val stageIds = jobIdToStageIds(jobId).toArray
     val stageInfos = stageIds.flatMap(id => stageIdToStage.get(id).map(_.latestInfo))
+    /* 向监听器发送Job开始的事件 */
     listenerBus.post(
       SparkListenerJobStart(job.jobId, jobSubmissionTime, stageInfos, properties))
     submitStage(finalStage)
@@ -946,14 +947,19 @@ class DAGScheduler(
     submitWaitingStages()
   }
 
+  /* 提交Stage开始计算，并且依次将依赖的没有计算的tage先进行计算 */
   /** Submits stage, but first recursively submits any missing parents. */
   private def submitStage(stage: Stage) {
     val jobId = activeJobForStage(stage)
     if (jobId.isDefined) {
       logDebug("submitStage(" + stage + ")")
+      /* 如果Stage没有在等待中，运行中，失败中，则将Stage提交运行
+       * 先是获取需要计算的Task */
       if (!waitingStages(stage) && !runningStages(stage) && !failedStages(stage)) {
+        /* 先是获取仍然需要计算的Stage */
         val missing = getMissingParentStages(stage).sortBy(_.id)
         logDebug("missing: " + missing)
+        /* 如果依赖的Stage都完成，则将当前Stage提交 */
         if (missing.isEmpty) {
           logInfo("Submitting " + stage + " (" + stage.rdd + "), which has no missing parents")
           submitMissingTasks(stage, jobId.get)
@@ -961,6 +967,8 @@ class DAGScheduler(
           for (parent <- missing) {
             submitStage(parent)
           }
+          /* 则将当前Stage加入到等待Stage当中，Stage的运行时需要等待依赖的Stage
+           * 运行完成才可以 */
           waitingStages += stage
         }
       }
@@ -969,12 +977,14 @@ class DAGScheduler(
     }
   }
 
+  /* 提交Stage当中的Task */
   /** Called when stage's parents are available and we can now do its task. */
   private def submitMissingTasks(stage: Stage, jobId: Int) {
     logDebug("submitMissingTasks(" + stage + ")")
     // Get our pending tasks and remember them in our pendingTasks entry
     stage.pendingPartitions.clear()
 
+    /* 先看Stage还有多少个分区需要计算 */
     // First figure out the indexes of partition ids to compute.
     val partitionsToCompute: Seq[Int] = stage.findMissingPartitions()
 
@@ -989,6 +999,7 @@ class DAGScheduler(
     // with this Stage
     val properties = jobIdToActiveJob(jobId).properties
 
+    /* 添加到正在运行的Stage当中 */
     runningStages += stage
     // SparkListenerStageSubmitted should be posted before testing whether tasks are
     // serializable. If tasks are not serializable, a SparkListenerStageCompleted event
@@ -1001,6 +1012,7 @@ class DAGScheduler(
         outputCommitCoordinator.stageStart(
           stage = s.id, maxPartitionId = s.rdd.partitions.length - 1)
     }
+    /* 获取每个分区Task的计算位置 */
     val taskIdToLocations: Map[Int, Seq[TaskLocation]] = try {
       stage match {
         case s: ShuffleMapStage =>
@@ -1543,6 +1555,8 @@ class DAGScheduler(
     visitedRdds.contains(target.rdd)
   }
 
+  /* 获取rdd第几个分区的计算位置，因为是移动计算而不是移动数据，
+   * 就是要知道rdd的这个分区要在哪个Executor中执行 */
   /**
    * Gets the locality information associated with a partition of a particular RDD.
    *

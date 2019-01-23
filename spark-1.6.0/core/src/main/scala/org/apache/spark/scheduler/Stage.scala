@@ -63,6 +63,7 @@ private[scheduler] abstract class Stage(
 
   val numPartitions = rdd.partitions.length
 
+  /* 一个Stage可能属于多个Job，因为DAG是一个有向无环图 */
   /** Set of jobs that this stage belongs to. */
   val jobIds = new HashSet[Int]
 
@@ -71,6 +72,7 @@ private[scheduler] abstract class Stage(
   /** The ID to use for the next new attempt for this stage. */
   private var nextAttemptId: Int = 0
 
+  /* Stage的名称 */
   val name: String = callSite.shortForm
   val details: String = callSite.longForm
 
