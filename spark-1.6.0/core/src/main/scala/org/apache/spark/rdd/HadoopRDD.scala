@@ -191,11 +191,13 @@ class HadoopRDD[K, V](
     newInputFormat
   }
 
+  /* 注意getPartition的调用时机 */
   override def getPartitions: Array[Partition] = {
     val jobConf = getJobConf()
     // add the credentials here as this can be called before SparkContext initialized
     SparkHadoopUtil.get.addCredentials(jobConf)
     val inputFormat = getInputFormat(jobConf)
+    /* 具体得到多少个输入分片 */
     val inputSplits = inputFormat.getSplits(jobConf, minPartitions)
     val array = new Array[Partition](inputSplits.size)
     for (i <- 0 until inputSplits.size) {

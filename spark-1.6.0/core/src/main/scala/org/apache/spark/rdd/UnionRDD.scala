@@ -42,8 +42,10 @@ private[spark] class UnionPartition[T: ClassTag](
     @transient private val parentRddPartitionIndex: Int)
   extends Partition {
 
+  /* 依赖的父分区 */
   var parentPartition: Partition = rdd.partitions(parentRddPartitionIndex)
 
+  /* 如果是遇到UnionRDD，需要知道计算的最佳位置时,则是通过父rdd的父分区来依赖计算 */
   def preferredLocations(): Seq[String] = rdd.preferredLocations(parentPartition)
 
   override val index: Int = idx
