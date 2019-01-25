@@ -356,6 +356,7 @@ class SparkContext(config: SparkConf) extends Logging with ExecutorAllocationCli
 
   private[spark] def cleaner: Option[ContextCleaner] = _cleaner
 
+  /* 检查点目录，如果设置则创建该目录 */
   private[spark] var checkpointDir: Option[String] = None
 
   // Thread Local variable that can be used by users to pass information down the stack
@@ -1831,6 +1832,7 @@ class SparkContext(config: SparkConf) extends Logging with ExecutorAllocationCli
     }
     dagScheduler.runJob(rdd, cleanedFunc, partitions, callSite, resultHandler, localProperties.get)
     progressBar.foreach(_.finishAll())
+    /* Action执行完成之后就对rdd开始执行checkpoint检查 */
     rdd.doCheckpoint()
   }
 

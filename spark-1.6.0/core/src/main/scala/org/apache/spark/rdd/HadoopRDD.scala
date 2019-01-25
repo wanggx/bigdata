@@ -323,6 +323,7 @@ class HadoopRDD[K, V](
     locs.getOrElse(hsplit.getLocations.filter(_ != "localhost"))
   }
 
+  /* hadooprdd不用做任何事 */
   override def checkpoint() {
     // Do nothing. Hadoop RDD should not be checkpointed.
   }

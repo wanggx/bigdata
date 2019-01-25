@@ -234,6 +234,7 @@ class StreamingContext private[streaming] (
       val fs = path.getFileSystem(sparkContext.hadoopConfiguration)
       fs.mkdirs(path)
       val fullPath = fs.getFileStatus(path).getPath().toString
+      /* 设置检查点路径  */
       sc.setCheckpointDir(fullPath)
       checkpointDir = fullPath
     } else {
