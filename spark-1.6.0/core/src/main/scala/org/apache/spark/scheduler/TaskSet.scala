@@ -23,6 +23,9 @@ import java.util.Properties
  * A set of tasks submitted together to the low-level TaskScheduler, usually representing
  * missing partitions of a particular stage.
  */
+
+/* 表示多个Task的集合，而这种情况多是将一个Stage的多个Task全部放在一个TaskSet当中，
+ * 然后将这个TaskSet发送到Executor当中执行 */
 private[spark] class TaskSet(
     val tasks: Array[Task[_]],
     val stageId: Int,

@@ -191,7 +191,10 @@ class HadoopRDD[K, V](
     newInputFormat
   }
 
-  /* 注意getPartition的调用时机 */
+  /* 注意getPartition的调用时机,
+   * 在runJob的时间就有一个参数需要计算分区的个数，
+   * 然后就会调用到这里
+   * */
   override def getPartitions: Array[Partition] = {
     val jobConf = getJobConf()
     // add the credentials here as this can be called before SparkContext initialized
@@ -300,6 +303,8 @@ class HadoopRDD[K, V](
     new HadoopMapPartitionsWithSplitRDD(this, f, preservesPartitioning)
   }
 
+  /* 获取每个分区的最佳计算位置，并在TaskSchedule在分发Task的时候，将Task分发
+   * 到具体的节点上 */
   override def getPreferredLocations(split: Partition): Seq[String] = {
     val hsplit = split.asInstanceOf[HadoopPartition].inputSplit.value
     val locs: Option[Seq[String]] = HadoopRDD.SPLIT_INFO_REFLECTIONS match {

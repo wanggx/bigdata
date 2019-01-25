@@ -57,6 +57,7 @@ private[spark] class TaskSchedulerImpl(
     isLocal: Boolean = false)
   extends TaskScheduler with Logging
 {
+  /* spark的任务默认最多失败四次 */
   def this(sc: SparkContext) = this(sc, sc.conf.getInt("spark.task.maxFailures", 4))
 
   val conf = sc.conf
@@ -75,6 +76,7 @@ private[spark] class TaskSchedulerImpl(
 
   // TaskSetManagers are not thread safe, so any access to one should be synchronized
   // on this class.
+  /* 第一个key为Stage的id，第二个为重试id */
   private val taskSetsByStageIdAndAttempt = new HashMap[Int, HashMap[Int, TaskSetManager]]
 
   private[scheduler] val taskIdToTaskSetManager = new HashMap[Long, TaskSetManager]
@@ -105,6 +107,7 @@ private[spark] class TaskSchedulerImpl(
 
   val mapOutputTracker = SparkEnv.get.mapOutputTracker
 
+  /* 调度方式构建起，Schedulebackend然后从build当中调度任务 */
   var schedulableBuilder: SchedulableBuilder = null
   var rootPool: Pool = null
   // default scheduler is FIFO
@@ -157,10 +160,12 @@ private[spark] class TaskSchedulerImpl(
     waitBackendReady()
   }
 
+  /* 由TaskSchedule来具体完成任务的调度 */
   override def submitTasks(taskSet: TaskSet) {
     val tasks = taskSet.tasks
     logInfo("Adding task set " + taskSet.id + " with " + tasks.length + " tasks")
     this.synchronized {
+      /* 创建任务集合的管理器 */
       val manager = createTaskSetManager(taskSet, maxTaskFailures)
       val stage = taskSet.stageId
       val stageTaskSets =

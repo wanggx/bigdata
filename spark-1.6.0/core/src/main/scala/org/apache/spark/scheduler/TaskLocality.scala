@@ -21,6 +21,10 @@ import org.apache.spark.annotation.DeveloperApi
 
 @DeveloperApi
 object TaskLocality extends Enumeration {
+  /* Task获取数据的本地性级别
+   * PROCESS_LOCAL表示数据就在Executor中，就是在Executor进程中
+   * NODE_LOCAL在同一个节点上，在另一个Executor，或者磁盘，或者hdfs文件系统
+   * */
   // Process local is expected to be used ONLY within TaskSetManager for now.
   val PROCESS_LOCAL, NODE_LOCAL, NO_PREF, RACK_LOCAL, ANY = Value
 

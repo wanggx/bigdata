@@ -349,6 +349,7 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: Rp
     driverEndpoint.send(KillTask(taskId, executorId, interruptThread))
   }
 
+  /* 这里的默认分区数量是先看配置，如果没有配置，则根据分配的核总数来计算 */
   override def defaultParallelism(): Int = {
     conf.getInt("spark.default.parallelism", math.max(totalCoreCount.get(), 2))
   }

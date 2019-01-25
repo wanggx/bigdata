@@ -899,6 +899,7 @@ class DAGScheduler(
       SparkListenerJobStart(job.jobId, jobSubmissionTime, stageInfos, properties))
     submitStage(finalStage)
 
+    /* 提交当前正在waiting的Stage */
     submitWaitingStages()
   }
 
@@ -1046,6 +1047,7 @@ class DAGScheduler(
     try {
       // For ShuffleMapTask, serialize and broadcast (rdd, shuffleDep).
       // For ResultTask, serialize and broadcast (rdd, func).
+      /* 将stage的信息序列化byte，并将数据广播到Executor当中， */
       val taskBinaryBytes: Array[Byte] = stage match {
         case stage: ShuffleMapStage =>
           closureSerializer.serialize((stage.rdd, stage.shuffleDep): AnyRef).array()
@@ -1077,7 +1079,8 @@ class DAGScheduler(
             new ShuffleMapTask(stage.id, stage.latestInfo.attemptId,
               taskBinary, part, locs, stage.internalAccumulators)
           }
-
+        /* 每个Task都知道自己的分区信息以及TaskLocation,
+         * 以及Task对应所在Stage的元数据 */
         case stage: ResultStage =>
           val job = stage.activeJob.get
           partitionsToCompute.map { id =>
