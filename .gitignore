@@ -1,2 +1,5 @@
 /Example/SparkLearning/*
 /Example/SparkLearning-master/*
+.DS_Store
+**/.idea/**
+
