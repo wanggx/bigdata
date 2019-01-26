@@ -78,10 +78,13 @@ private[spark] class TaskSetManager(
   val env = SparkEnv.get
   val ser = env.closureSerializer.newInstance()
 
+  /* 任务的数组以及任务的数量 */
   val tasks = taskSet.tasks
   val numTasks = tasks.length
   val copiesRunning = new Array[Int](numTasks)
+  /* 标记每个任务是否成功 */
   val successful = new Array[Boolean](numTasks)
+  /* 标记每个任务的失败次数  */
   private val numFailures = new Array[Int](numTasks)
   // key is taskId, value is a Map of executor id to when it failed
   private val failedExecutors = new HashMap[Int, HashMap[String, Long]]()
@@ -136,6 +139,7 @@ private[spark] class TaskSetManager(
   // tasks, we'll just hold them in a HashSet.
   val speculatableTasks = new HashSet[Int]
 
+  /* 记录每个Task的运行信息 */
   // Task index, start and finish time for each task attempt (indexed by task ID)
   val taskInfos = new HashMap[Long, TaskInfo]
 
@@ -158,6 +162,7 @@ private[spark] class TaskSetManager(
   // Add all our tasks to the pending lists. We do this in reverse order
   // of task index so that tasks with low indices get launched first.
   for (i <- (0 until numTasks).reverse) {
+    /* 添加到挂起队列中 */
     addPendingTask(i)
   }
 
@@ -438,6 +443,7 @@ private[spark] class TaskSetManager(
         }
       }
 
+      /* 从调度队列中取出一个任务来 */
       dequeueTask(execId, host, allowedLocality) match {
         case Some((index, taskLocality, speculative)) => {
           // Found a task; do some bookkeeping and return a task description

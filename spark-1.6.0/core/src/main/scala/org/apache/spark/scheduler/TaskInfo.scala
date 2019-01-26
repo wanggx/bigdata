@@ -25,6 +25,7 @@ import org.apache.spark.annotation.DeveloperApi
  * :: DeveloperApi ::
  * Information about a running task attempt inside a TaskSet.
  */
+/* Task的运行信息 */
 @DeveloperApi
 class TaskInfo(
     val taskId: Long,
@@ -100,6 +101,7 @@ class TaskInfo(
 
   def id: String = s"$index.$attemptNumber"
 
+  /* 计算Task的运行时间,并且只有在完成状态下调用 */
   def duration: Long = {
     if (!finished) {
       throw new UnsupportedOperationException("duration() called on unfinished task")

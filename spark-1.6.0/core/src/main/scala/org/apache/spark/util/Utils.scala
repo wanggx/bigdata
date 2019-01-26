@@ -2045,6 +2045,7 @@ private[spark] object Utils extends Logging {
     method.invoke(obj, values.toSeq: _*)
   }
 
+  /* 限制发送到Driver的结果数据量最大不超过1G */
   // Limit of bytes for total size of results (default is 1GB)
   def getMaxResultSize(conf: SparkConf): Long = {
     memoryStringToMb(conf.get("spark.driver.maxResultSize", "1g")).toLong << 20

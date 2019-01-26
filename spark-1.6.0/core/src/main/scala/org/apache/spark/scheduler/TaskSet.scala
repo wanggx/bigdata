@@ -32,6 +32,7 @@ private[spark] class TaskSet(
     val stageAttemptId: Int,
     val priority: Int,
     val properties: Properties) {
+  /* taskid使用stageid和重试id来组合表示 */
   val id: String = stageId + "." + stageAttemptId
 
   override def toString: String = "TaskSet " + id

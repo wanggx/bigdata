@@ -313,6 +313,7 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: Rp
     driverEndpoint = rpcEnv.setupEndpoint(ENDPOINT_NAME, createDriverEndpoint(properties))
   }
 
+  /* 创建一个Driver端的RPC通信 */
   protected def createDriverEndpoint(properties: Seq[(String, String)]): DriverEndpoint = {
     new DriverEndpoint(rpcEnv, properties)
   }
@@ -341,6 +342,7 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: Rp
     }
   }
 
+  /* 到这里就到底层RPC通信了 */
   override def reviveOffers() {
     driverEndpoint.send(ReviveOffers)
   }

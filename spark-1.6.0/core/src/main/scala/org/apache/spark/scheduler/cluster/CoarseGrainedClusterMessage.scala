@@ -64,6 +64,7 @@ private[spark] object CoarseGrainedClusterMessages {
     }
   }
 
+  /* Driver的内部消息,仅仅是一个消息,没有携带任何数据,object对象 */
   // Internal messages in driver
   case object ReviveOffers extends CoarseGrainedClusterMessage
 
