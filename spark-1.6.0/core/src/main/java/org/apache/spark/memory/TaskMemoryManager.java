@@ -92,6 +92,7 @@ public class TaskMemoryManager {
   /**
    * Bitmap for tracking free pages.
    */
+  /* 使用位图来表示空闲页 */
   private final BitSet allocatedPages = new BitSet(PAGE_TABLE_SIZE);
 
   private final MemoryManager memoryManager;
@@ -103,6 +104,7 @@ public class TaskMemoryManager {
    * without doing any masking or lookups. Since this branching should be well-predicted by the JIT,
    * this extra layer of indirection / abstraction hopefully shouldn't be too expensive.
    */
+  /* 是否启用堆外内存模式 */
   final MemoryMode tungstenMemoryMode;
 
   /**

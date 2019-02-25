@@ -48,14 +48,14 @@ import org.apache.spark.storage.{BlockStatus, BlockId}
  */
 private[spark] class UnifiedMemoryManager private[memory] (
     conf: SparkConf,
-    val maxMemory: Long,
-    storageRegionSize: Long,
+    val maxMemory: Long,     /* 系统内存减去预留内存 */
+    storageRegionSize: Long,  /* 默认为maxMemory的一半 */
     numCores: Int)
   extends MemoryManager(
     conf,
     numCores,
-    storageRegionSize,
-    maxMemory - storageRegionSize) {
+    storageRegionSize,    /* storage内存大小 */
+    maxMemory - storageRegionSize) {   /* execution堆上内存大小 */
 
   // We always maintain this invariant:
   assert(onHeapExecutionMemoryPool.poolSize + storageMemoryPool.poolSize == maxMemory)
@@ -73,6 +73,7 @@ private[spark] class UnifiedMemoryManager private[memory] (
    * active tasks) before it is forced to spill. This can happen if the number of tasks increase
    * but an older task had a lot of memory already.
    */
+  /* 获取执行内存，内存大小为numBytes,memoryMode表示从堆内或堆外 */
   override private[memory] def acquireExecutionMemory(
       numBytes: Long,
       taskAttemptId: Long,
@@ -176,7 +177,7 @@ object UnifiedMemoryManager {
     new UnifiedMemoryManager(
       conf,
       maxMemory = maxMemory,
-      storageRegionSize =
+      storageRegionSize =     /* Storage区内存默认使用一半 */
         (maxMemory * conf.getDouble("spark.memory.storageFraction", 0.5)).toLong,
       numCores = numCores)
   }
@@ -184,11 +185,15 @@ object UnifiedMemoryManager {
   /**
    * Return the total amount of memory shared between execution and storage, in bytes.
    */
+  /* 系统保留内存为300M，系统最大内存减去保留内存，
+   * 就是剩下的Storage内存和Execution内存+其他内存,
+   * 系统内存比例默认是0.75 */
   private def getMaxMemory(conf: SparkConf): Long = {
     val systemMemory = conf.getLong("spark.testing.memory", Runtime.getRuntime.maxMemory)
     val reservedMemory = conf.getLong("spark.testing.reservedMemory",
       if (conf.contains("spark.testing")) 0 else RESERVED_SYSTEM_MEMORY_BYTES)
     val minSystemMemory = reservedMemory * 1.5
+    /* 系统内存至少是保留内存的1.5倍 */
     if (systemMemory < minSystemMemory) {
       throw new IllegalArgumentException(s"System memory $systemMemory must " +
         s"be at least $minSystemMemory. Please use a larger heap size.")

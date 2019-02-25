@@ -42,8 +42,8 @@ import org.apache.spark.util._
  * Common application master functionality for Spark on Yarn.
  */
 private[spark] class ApplicationMaster(
-    args: ApplicationMasterArguments,
-    client: YarnRMClient)
+    args: ApplicationMasterArguments,   /* master的启动参数，比如driver-cores等 */
+    client: YarnRMClient)               /* RM的客户端，用来向集群申请资源的 */
   extends Logging {
 
   // Load the properties file with the Spark configuration and set entries as system properties,
@@ -86,6 +86,7 @@ private[spark] class ApplicationMaster(
   @volatile private var userClassThread: Thread = _
 
   @volatile private var reporterThread: Thread = _
+  /* Yarn的方式来分配Container */
   @volatile private var allocator: YarnAllocator = _
 
   // Lock for controlling the allocator (heartbeat) thread.
@@ -143,10 +144,12 @@ private[spark] class ApplicationMaster(
 
       // This shutdown hook should run *after* the SparkContext is shut down.
       val priority = ShutdownHookManager.SPARK_CONTEXT_SHUTDOWN_PRIORITY - 1
+      /* 添加master退出的shutdownhook */
       ShutdownHookManager.addShutdownHook(priority) { () =>
         val maxAppAttempts = client.getMaxRegAttempts(sparkConf, yarnConf)
         val isLastAttempt = client.getAttemptId().getAttemptId() >= maxAppAttempts
 
+        /* 如果应用没有结束，或者调用exit */
         if (!finished) {
           // This happens when the user application calls System.exit(). We have the choice
           // of either failing or succeeding at this point. We report success to avoid
@@ -158,6 +161,7 @@ private[spark] class ApplicationMaster(
             "Shutdown hook called before final status was reported.")
         }
 
+        /* 有没有把应用自己给注销掉 */
         if (!unregistered) {
           // we only want to unregister if we don't want the RM to retry
           if (finalStatus == FinalApplicationStatus.SUCCEEDED || isLastAttempt) {
@@ -261,6 +265,7 @@ private[spark] class ApplicationMaster(
     sparkContextRef.compareAndSet(sc, null)
   }
 
+  /* 向集群注册AM */
   private def registerAM(
       _rpcEnv: RpcEnv,
       driverRef: RpcEndpointRef,
@@ -301,6 +306,7 @@ private[spark] class ApplicationMaster(
    *
    * @return A reference to the driver's RPC endpoint.
    */
+  /* 运行AM的RPC端点 */
   private def runAMEndpoint(
       host: String,
       port: String,
@@ -314,6 +320,11 @@ private[spark] class ApplicationMaster(
     driverEndpoint
   }
 
+  /* 开始运行Driver端，执行Driver端首先是调用用户开发的main函数，
+   * 也就是SparkContext的初始化，初始化完成之后，就创建Driver的
+   * Endpoint,然后通过Endpoint向ClusterManager注册应用自己，
+   * 注册完成之后，就开始想ClusterManager申请Container资源
+   * */
   private def runDriver(securityMgr: SecurityManager): Unit = {
     addAmIpFilter()
     userClassThread = startUserApplication()
@@ -533,6 +544,9 @@ private[spark] class ApplicationMaster(
     if (args.primaryRFile != null && args.primaryRFile.endsWith(".R")) {
       // TODO(davies): add R dependencies here
     }
+
+    /* 注意这里是通过参数指定的main class，然后通过反射来调用main函数
+     * 但是main函数的调用是单独开启一个线程来执行的 */
     val mainMethod = userClassLoader.loadClass(args.userClass)
       .getMethod("main", classOf[Array[String]])
 
@@ -574,6 +588,7 @@ private[spark] class ApplicationMaster(
   /**
    * An [[RpcEndpoint]] that communicates with the driver's scheduler backend.
    */
+  /* Driver端的RPC通信 */
   private class AMEndpoint(
       override val rpcEnv: RpcEnv, driver: RpcEndpointRef, isClusterMode: Boolean)
     extends RpcEndpoint with Logging {
@@ -588,6 +603,11 @@ private[spark] class ApplicationMaster(
         driver.send(x)
     }
 
+    /* yan收到消息，并作出响应，这个消息应该是从集群管理器的，
+     * 因为在AM启动之后需要向集群管理器注册自己，准备就绪之后
+     * 就开始从集群中申请Container资源，在Yanr中Container
+     * 和Executor是等价的。
+     * */
     override def receiveAndReply(context: RpcCallContext): PartialFunction[Any, Unit] = {
       case RequestExecutors(requestedTotal, localityAwareTasks, hostToLocalTaskCount) =>
         Option(allocator) match {
@@ -632,6 +652,7 @@ private[spark] class ApplicationMaster(
 
 }
 
+/* Yarn应用的Master */
 object ApplicationMaster extends Logging {
 
   // exit codes for different causes, no reason behind the values

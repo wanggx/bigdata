@@ -28,6 +28,7 @@ import org.apache.spark.unsafe.Platform;
 /**
  * A simple {@link MemoryAllocator} that can allocate up to 16GB using a JVM long primitive array.
  */
+/* 分配堆内存 */
 public class HeapMemoryAllocator implements MemoryAllocator {
 
   @GuardedBy("this")
@@ -54,19 +55,23 @@ public class HeapMemoryAllocator implements MemoryAllocator {
           while (!pool.isEmpty()) {
             final WeakReference<MemoryBlock> blockReference = pool.pop();
             final MemoryBlock memory = blockReference.get();
+            /* 如果找到大小相同的内存块，则返回 */
             if (memory != null) {
               assert (memory.size() == size);
               return memory;
             }
           }
+          /* 如果在pool里面没有找到，则将其对应的key删除 */
           bufferPoolsBySize.remove(size);
         }
       }
     }
+    /* 8字节对其 */
     long[] array = new long[(int) ((size + 7) / 8)];
     return new MemoryBlock(array, Platform.LONG_ARRAY_OFFSET, size);
   }
 
+  /* 重新放到pool当中，以供下次使用 */
   @Override
   public void free(MemoryBlock memory) {
     final long size = memory.size();

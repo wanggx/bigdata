@@ -22,10 +22,12 @@ import org.apache.spark.unsafe.Platform;
 /**
  * A simple {@link MemoryAllocator} that uses {@code Unsafe} to allocate off-heap memory.
  */
+/* 申请对外内存 */
 public class UnsafeMemoryAllocator implements MemoryAllocator {
 
   @Override
   public MemoryBlock allocate(long size) throws OutOfMemoryError {
+    /* 返回的address是进程的逻辑地址 */
     long address = Platform.allocateMemory(size);
     return new MemoryBlock(null, address, size);
   }

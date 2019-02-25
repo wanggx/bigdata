@@ -27,6 +27,7 @@ import javax.annotation.concurrent.GuardedBy
  *             to `Object` to avoid programming errors, since this object should only be used for
  *             synchronization purposes.
  */
+/* 处理内存池的大小 */
 private[memory] abstract class MemoryPool(lock: Object) {
 
   @GuardedBy("lock")

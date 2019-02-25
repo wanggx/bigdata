@@ -237,7 +237,7 @@ object SparkEnv extends Logging {
       port: Int,
       isDriver: Boolean,
       isLocal: Boolean,
-      numUsableCores: Int,
+      numUsableCores: Int,    /* 目前可用的核数 */
       listenerBus: LiveListenerBus = null,
       mockOutputCommitCoordinator: Option[OutputCommitCoordinator] = None): SparkEnv = {
 
@@ -346,6 +346,8 @@ object SparkEnv extends Logging {
     val shuffleMgrClass = shortShuffleMgrNames.getOrElse(shuffleMgrName.toLowerCase, shuffleMgrName)
     val shuffleManager = instantiateClass[ShuffleManager](shuffleMgrClass)
 
+    /* 获取Spark的内存管理模式，默认情况下使用的是统一内存管理模式，
+     * 正常情况下统一的内存管理模式更灵活，高效 */
     val useLegacyMemoryManager = conf.getBoolean("spark.memory.useLegacyMode", false)
     val memoryManager: MemoryManager =
       if (useLegacyMemoryManager) {

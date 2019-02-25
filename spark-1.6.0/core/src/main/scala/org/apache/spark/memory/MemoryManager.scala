@@ -44,12 +44,17 @@ private[spark] abstract class MemoryManager(
   @GuardedBy("this")
   protected val storageMemoryPool = new StorageMemoryPool(this)
   @GuardedBy("this")
+  /* 堆内内存分配 */
   protected val onHeapExecutionMemoryPool = new ExecutionMemoryPool(this, "on-heap execution")
   @GuardedBy("this")
+  /* 堆外内存分配 */
   protected val offHeapExecutionMemoryPool = new ExecutionMemoryPool(this, "off-heap execution")
 
+  /* 两者内存总和必须满足相加等于系统最大可用内存 */
   storageMemoryPool.incrementPoolSize(storageMemory)
   onHeapExecutionMemoryPool.incrementPoolSize(onHeapExecutionMemory)
+
+  /* 堆外内存大小 */
   offHeapExecutionMemoryPool.incrementPoolSize(conf.getSizeAsBytes("spark.memory.offHeap.size", 0))
 
   /**
@@ -181,6 +186,8 @@ private[spark] abstract class MemoryManager(
    * Tracks whether Tungsten memory will be allocated on the JVM heap or off-heap using
    * sun.misc.Unsafe.
    */
+  /**
+    * 确定内存分配模式 */
   final val tungstenMemoryMode: MemoryMode = {
     if (conf.getBoolean("spark.memory.offHeap.enabled", false)) {
       require(conf.getSizeAsBytes("spark.memory.offHeap.size", 0) > 0,
@@ -216,6 +223,7 @@ private[spark] abstract class MemoryManager(
   /**
    * Allocates memory for use by Unsafe/Tungsten code.
    */
+  /* 获取内存的分配方式 */
   private[memory] final val tungstenMemoryAllocator: MemoryAllocator = {
     tungstenMemoryMode match {
       case MemoryMode.ON_HEAP => MemoryAllocator.HEAP

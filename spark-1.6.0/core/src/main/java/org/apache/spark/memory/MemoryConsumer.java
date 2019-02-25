@@ -31,6 +31,7 @@ public abstract class MemoryConsumer {
 
   protected final TaskMemoryManager taskMemoryManager;
   private final long pageSize;
+  /* 已经使用内存大小 */
   protected long used;
 
   protected MemoryConsumer(TaskMemoryManager taskMemoryManager, long pageSize) {
@@ -109,6 +110,7 @@ public abstract class MemoryConsumer {
    * @throws OutOfMemoryError
    */
   protected MemoryBlock allocatePage(long required) {
+    /* 分配最大数量不能超过一页大小 */
     MemoryBlock page = taskMemoryManager.allocatePage(Math.max(pageSize, required), this);
     if (page == null || page.size() < required) {
       long got = 0;
