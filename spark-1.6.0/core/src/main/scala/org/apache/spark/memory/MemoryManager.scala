@@ -175,6 +175,7 @@ private[spark] abstract class MemoryManager(
   /**
    * Returns the execution memory consumption, in bytes, for the given task.
    */
+  /* 堆内和堆外内存总和 */
   private[memory] def getExecutionMemoryUsageForTask(taskAttemptId: Long): Long = synchronized {
     onHeapExecutionMemoryPool.getMemoryUsageForTask(taskAttemptId) +
       offHeapExecutionMemoryPool.getMemoryUsageForTask(taskAttemptId)

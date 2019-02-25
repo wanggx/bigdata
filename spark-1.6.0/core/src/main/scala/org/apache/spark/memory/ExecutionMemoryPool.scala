@@ -48,8 +48,10 @@ private[memory] class ExecutionMemoryPool(
    * Map from taskAttemptId -> memory consumption in bytes
    */
   @GuardedBy("lock")
+  /* 记录每个任务的内存情况 */
   private val memoryForTask = new mutable.HashMap[Long, Long]()
 
+  /* 计算executor中所有任务的内存使用总和 */
   override def memoryUsed: Long = lock.synchronized {
     memoryForTask.values.sum
   }

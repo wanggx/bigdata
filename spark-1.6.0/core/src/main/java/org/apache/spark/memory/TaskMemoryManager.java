@@ -243,6 +243,7 @@ public class TaskMemoryManager {
         "Cannot allocate a page with more than " + MAXIMUM_PAGE_SIZE_BYTES + " bytes");
     }
 
+    /* 计算可以分配到的内存大小 */
     long acquired = acquireExecutionMemory(size, tungstenMemoryMode, consumer);
     if (acquired <= 0) {
       return null;
@@ -258,8 +259,10 @@ public class TaskMemoryManager {
       }
       allocatedPages.set(pageNumber);
     }
+    /* 进行实际的内存分配动作 */
     final MemoryBlock page = memoryManager.tungstenMemoryAllocator().allocate(acquired);
     page.pageNumber = pageNumber;
+    /* 设置映射关系 */
     pageTable[pageNumber] = page;
     if (logger.isTraceEnabled()) {
       logger.trace("Allocate page number {} ({} bytes)", pageNumber, acquired);

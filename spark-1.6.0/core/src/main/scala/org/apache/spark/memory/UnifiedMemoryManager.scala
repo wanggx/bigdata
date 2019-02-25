@@ -60,6 +60,8 @@ private[spark] class UnifiedMemoryManager private[memory] (
   // We always maintain this invariant:
   assert(onHeapExecutionMemoryPool.poolSize + storageMemoryPool.poolSize == maxMemory)
 
+  /* storage能使用的最大空间，虽说这里有storage和execution的内存比例
+   * 但是在一边用满，另一边仍有空闲时，可以动态的挤占 */
   override def maxStorageMemory: Long = synchronized {
     maxMemory - onHeapExecutionMemoryPool.memoryUsed
   }
@@ -90,7 +92,9 @@ private[spark] class UnifiedMemoryManager private[memory] (
          * attempts. Each attempt must be able to evict storage in case another task jumps in
          * and caches a large block between the attempts. This is called once per attempt.
          */
+        /* 这里就是execution挤占storage的内存 */
         def maybeGrowExecutionPool(extraMemoryNeeded: Long): Unit = {
+          /* 判断内存是否需要扩充 */
           if (extraMemoryNeeded > 0) {
             // There is not enough free memory in the execution pool, so try to reclaim memory from
             // storage. We can reclaim any free memory from the storage pool. If the storage pool

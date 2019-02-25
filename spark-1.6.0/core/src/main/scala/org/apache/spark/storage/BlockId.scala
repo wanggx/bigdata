@@ -90,6 +90,7 @@ private[spark] case class TempLocalBlockId(id: UUID) extends BlockId {
   override def name: String = "temp_local_" + id
 }
 
+/* ExternalSorter在内存溢出之后写入的零时文件 */
 /** Id associated with temporary shuffle data managed as blocks. Not serializable. */
 private[spark] case class TempShuffleBlockId(id: UUID) extends BlockId {
   override def name: String = "temp_shuffle_" + id

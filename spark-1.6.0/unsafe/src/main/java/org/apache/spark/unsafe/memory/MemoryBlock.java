@@ -33,6 +33,7 @@ public class MemoryBlock extends MemoryLocation {
    * TaskMemoryManager. This field is public so that it can be modified by the TaskMemoryManager,
    * which lives in a different package.
    */
+  /* 内存页数组当中的索引 */
   public int pageNumber = -1;
 
   public MemoryBlock(@Nullable Object obj, long offset, long length) {

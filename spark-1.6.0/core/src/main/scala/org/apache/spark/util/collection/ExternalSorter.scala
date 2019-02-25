@@ -183,6 +183,7 @@ private[spark] class ExternalSorter[K, V, C](
       val mergeValue = aggregator.get.mergeValue
       val createCombiner = aggregator.get.createCombiner
       var kv: Product2[K, V] = null
+      /* 每次都将value传递进去，注意引用的使用 */
       val update = (hadValue: Boolean, oldValue: C) => {
         if (hadValue) mergeValue(oldValue, kv._2) else createCombiner(kv._2)
       }
@@ -208,11 +209,13 @@ private[spark] class ExternalSorter[K, V, C](
    *
    * @param usingMap whether we're using a map or buffer as our current in-memory collection
    */
+  /* 判断是否溢出 */
   private def maybeSpillCollection(usingMap: Boolean): Unit = {
     var estimatedSize = 0L
     if (usingMap) {
       estimatedSize = map.estimateSize()
       if (maybeSpill(map, estimatedSize)) {
+        /* 如果有溢出，则重新创建一个map，buffer一样的道理 */
         map = new PartitionedAppendOnlyMap[K, C]
       }
     } else {

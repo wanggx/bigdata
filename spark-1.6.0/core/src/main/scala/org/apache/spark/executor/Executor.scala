@@ -104,6 +104,7 @@ private[spark] class Executor(
   private val maxResultSize = Utils.getMaxResultSize(conf)
 
   // Maintains the list of running tasks.
+  /* 记录Executor当中正在运行的task */
   private val runningTasks = new ConcurrentHashMap[Long, TaskRunner]
 
   // Executor for the heartbeat task.
@@ -115,6 +116,7 @@ private[spark] class Executor(
 
   startDriverHeartbeater()
 
+  /* Executor收到Task之后，将Task提交到线程池中运行 */
   def launchTask(
       context: ExecutorBackend,
       taskId: Long,
@@ -178,6 +180,7 @@ private[spark] class Executor(
     }
 
     override def run(): Unit = {
+      /* 创建具体的任务上下文，注意每一个任务对应一个TaskMemoryManager */
       val taskMemoryManager = new TaskMemoryManager(env.memoryManager, taskId)
       val deserializeStartTime = System.currentTimeMillis()
       Thread.currentThread.setContextClassLoader(replClassLoader)

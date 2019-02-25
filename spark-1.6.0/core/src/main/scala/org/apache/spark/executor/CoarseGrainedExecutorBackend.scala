@@ -77,6 +77,7 @@ private[spark] class CoarseGrainedExecutorBackend(
       .map(e => (e._1.substring(prefix.length).toLowerCase, e._2))
   }
 
+  /* Executor和Driver的通信 */
   override def receive: PartialFunction[Any, Unit] = {
     case RegisteredExecutor(hostname) =>
       logInfo("Successfully registered with driver")
@@ -86,7 +87,7 @@ private[spark] class CoarseGrainedExecutorBackend(
       logError("Slave registration failed: " + message)
       System.exit(1)
 
-    case LaunchTask(data) =>
+    case LaunchTask(data) =>  /* 收到启动任务的消息 */
       if (executor == null) {
         logError("Received LaunchTask command but executor was null")
         System.exit(1)
@@ -135,6 +136,7 @@ private[spark] class CoarseGrainedExecutorBackend(
   }
 }
 
+/* Executor启动类 */
 private[spark] object CoarseGrainedExecutorBackend extends Logging {
 
   private def run(

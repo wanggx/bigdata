@@ -139,6 +139,7 @@ class AppendOnlyMap[K, V](initialCapacity: Int = 64)
     var pos = rehash(k.hashCode) & mask
     var i = 1
     while (true) {
+      /* pos*2记录分区好，pos*2+1记录分区数据的聚合 */
       val curKey = data(2 * pos)
       if (k.eq(curKey) || k.equals(curKey)) {
         val newValue = updateFunc(true, data(2 * pos + 1).asInstanceOf[V])

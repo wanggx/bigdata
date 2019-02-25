@@ -220,6 +220,8 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: Rp
         !executorsPendingLossReason.contains(executorId)
     }
 
+    /* driver端向Executor端发送启动任务的消息
+     * 使用executorEndpoint来发送消息 */
     // Launch tasks returned by a set of resource offers
     private def launchTasks(tasks: Seq[Seq[TaskDescription]]) {
       for (task <- tasks.flatten) {

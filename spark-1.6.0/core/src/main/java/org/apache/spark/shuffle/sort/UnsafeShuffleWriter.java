@@ -166,6 +166,7 @@ public class UnsafeShuffleWriter<K, V> extends ShuffleWriter<K, V> {
       closeAndWriteOutput();
       success = true;
     } finally {
+      /* 所有写完之后，开始清理资源 */
       if (sorter != null) {
         try {
           sorter.cleanupResources();

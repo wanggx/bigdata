@@ -372,6 +372,8 @@ final class ShuffleExternalSorter extends MemoryConsumer {
     growPointerArrayIfNecessary();
     // Need 4 bytes to store the record length.
     final int required = length + 4;
+
+    /* 判断是否需要分配新的一页 */
     acquireNewPageIfNecessary(required);
 
     assert(currentPage != null);

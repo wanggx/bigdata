@@ -44,11 +44,13 @@ private[spark] trait Spillable[C] extends Logging {
 
   // Initial threshold for the size of a collection before we start tracking its memory usage
   // For testing only
+  /* 元素内存超过多少就需要溢出 */
   private[this] val initialMemoryThreshold: Long =
     SparkEnv.get.conf.getLong("spark.shuffle.spill.initialMemoryThreshold", 5 * 1024 * 1024)
 
   // Force this collection to spill when there are this many elements in memory
   // For testing only
+  /* 多少个元素强制溢出 */
   private[this] val numElementsForceSpillThreshold: Long =
     SparkEnv.get.conf.getLong("spark.shuffle.spill.numElementsForceSpillThreshold", Long.MaxValue)
 
@@ -62,6 +64,7 @@ private[spark] trait Spillable[C] extends Logging {
   // Number of bytes spilled in total
   private[this] var _memoryBytesSpilled = 0L
 
+  /* 内存溢出的数量 */
   // Number of spills
   private[this] var _spillCount = 0
 
@@ -78,6 +81,7 @@ private[spark] trait Spillable[C] extends Logging {
     if (elementsRead % 32 == 0 && currentMemory >= myMemoryThreshold) {
       // Claim up to double our current memory from the shuffle memory pool
       val amountToRequest = 2 * currentMemory - myMemoryThreshold
+      /* 通过taskmemoryManager来计算可以保证分配多少内存 */
       val granted =
         taskMemoryManager.acquireExecutionMemory(amountToRequest, MemoryMode.ON_HEAP, null)
       myMemoryThreshold += granted
@@ -92,7 +96,9 @@ private[spark] trait Spillable[C] extends Logging {
       logSpillage(currentMemory)
       spill(collection)
       _elementsRead = 0
+      /* 记录内存溢出总量 */
       _memoryBytesSpilled += currentMemory
+      /* 每次溢出之后就将内存释放并初始化 */
       releaseMemory()
     }
     shouldSpill
