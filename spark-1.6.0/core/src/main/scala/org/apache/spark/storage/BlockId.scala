@@ -60,11 +60,13 @@ case class ShuffleBlockId(shuffleId: Int, mapId: Int, reduceId: Int) extends Blo
   override def name: String = "shuffle_" + shuffleId + "_" + mapId + "_" + reduceId
 }
 
+/* shuffle完整结果数据块，一个分区的shuffle结果汇总写到一个文件里面去 */
 @DeveloperApi
 case class ShuffleDataBlockId(shuffleId: Int, mapId: Int, reduceId: Int) extends BlockId {
   override def name: String = "shuffle_" + shuffleId + "_" + mapId + "_" + reduceId + ".data"
 }
 
+/* shuffle结果数据的索引文件，告诉reader那个分区的数据在ShuffleDataBlockId对应文件的位置 */
 @DeveloperApi
 case class ShuffleIndexBlockId(shuffleId: Int, mapId: Int, reduceId: Int) extends BlockId {
   override def name: String = "shuffle_" + shuffleId + "_" + mapId + "_" + reduceId + ".index"

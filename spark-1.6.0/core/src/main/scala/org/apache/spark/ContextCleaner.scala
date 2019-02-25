@@ -65,6 +65,7 @@ private[spark] class ContextCleaner(sc: SparkContext) extends Logging {
   private val listeners = new ArrayBuffer[CleanerListener]
     with SynchronizedBuffer[CleanerListener]
 
+  /* 清理线程在一直不断的扫，扫到了就讲数据清理掉 */
   private val cleaningThread = new Thread() { override def run() { keepCleaning() }}
 
   private val periodicGCService: ScheduledExecutorService =
@@ -140,6 +141,7 @@ private[spark] class ContextCleaner(sc: SparkContext) extends Logging {
     periodicGCService.shutdown()
   }
 
+  /* 注册RDD方便做清除 */
   /** Register a RDD for cleanup when it is garbage collected. */
   def registerRDDForCleanup(rdd: RDD[_]): Unit = {
     registerForCleanup(rdd, CleanRDD(rdd.id))
@@ -169,6 +171,7 @@ private[spark] class ContextCleaner(sc: SparkContext) extends Logging {
     referenceBuffer += new CleanupTaskWeakReference(task, objectForCleanup, referenceQueue)
   }
 
+  /* 线程在不断的扫描 */
   /** Keep cleaning RDD, shuffle, and broadcast state. */
   private def keepCleaning(): Unit = Utils.tryOrStopSparkContext(sc) {
     while (!stopped) {
@@ -180,6 +183,9 @@ private[spark] class ContextCleaner(sc: SparkContext) extends Logging {
           reference.map(_.task).foreach { task =>
             logDebug("Got cleaning task " + task)
             referenceBuffer -= reference.get
+            /* 清除的模式都是先想blockmanagermaster发送清除消息，
+             * 然后blockmanagermaster向各个对应的Executor发送清除
+             * 消息，这样才将数据彻底清澈 */
             task match {
               case CleanRDD(rddId) =>
                 doCleanupRDD(rddId, blocking = blockOnCleanupTasks)
