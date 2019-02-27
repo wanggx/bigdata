@@ -54,11 +54,17 @@ object Partitioner {
    *
    * We use two method parameters (rdd, others) to enforce callers passing at least 1 RDD.
    */
+  /* 在例如shuffle需要分区器的时候，如果没有显示指定，则默认的使用这个分区器 */
   def defaultPartitioner(rdd: RDD[_], others: RDD[_]*): Partitioner = {
+    /* 对RDD的分区数大小进行降序排序，取前面分区数最大的一个RDD的分区器为准
+     * 其实从逻辑上可以这样理解，一般情况下，RDD产生shuffle主要是分区器发生变化
+     * 则默认取最大分区数RDD的分区器，
+     */
     val bySize = (Seq(rdd) ++ others).sortBy(_.partitions.size).reverse
     for (r <- bySize if r.partitioner.isDefined && r.partitioner.get.numPartitions > 0) {
       return r.partitioner.get
     }
+    /* 否则就是新建一个分区器，即使新建的分区器分区数相同，但是任然是有区别的 */
     if (rdd.context.conf.contains("spark.default.parallelism")) {
       new HashPartitioner(rdd.context.defaultParallelism)
     } else {

@@ -40,9 +40,9 @@ private[spark] class ShuffledRDDPartition(val idx: Int) extends Partition {
 // TODO: Make this return RDD[Product2[K, C]] or have some way to configure mutable pairs
 @DeveloperApi
 class ShuffledRDD[K: ClassTag, V: ClassTag, C: ClassTag](
-    @transient var prev: RDD[_ <: Product2[K, V]],
+    @transient var prev: RDD[_ <: Product2[K, V]],    /* 注意shuffle的依赖只有一个RDD，也就是父RDD只有一个 */
     part: Partitioner)
-  extends RDD[(K, C)](prev.context, Nil) {
+  extends RDD[(K, C)](prev.context, Nil) {   /* 先初始化依赖为空 */
 
   private var serializer: Option[Serializer] = None
 
@@ -76,6 +76,7 @@ class ShuffledRDD[K: ClassTag, V: ClassTag, C: ClassTag](
     this
   }
 
+  /* shuffleRDD的依赖其实也就一个ShuffleDependency */
   override def getDependencies: Seq[Dependency[_]] = {
     List(new ShuffleDependency(prev, part, serializer, keyOrdering, aggregator, mapSideCombine))
   }

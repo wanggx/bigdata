@@ -126,6 +126,7 @@ abstract class RDD[T: ClassTag](
    */
   protected def getPreferredLocations(split: Partition): Seq[String] = Nil
 
+  /* RDD对应的分区器 */
   /** Optionally overridden by subclasses to specify how they are partitioned. */
   @transient val partitioner: Option[Partitioner] = None
 
@@ -524,6 +525,7 @@ abstract class RDD[T: ClassTag](
    * times (use `.distinct()` to eliminate them).
    */
   def union(other: RDD[T]): RDD[T] = withScope {
+    /* 如果两个RDD的分区器是相同的，则产生 */
     if (partitioner.isDefined && other.partitioner == partitioner) {
       new PartitionerAwareUnionRDD(sc, Array(this, other))
     } else {

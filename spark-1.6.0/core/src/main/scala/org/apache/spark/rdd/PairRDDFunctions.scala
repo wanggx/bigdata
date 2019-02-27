@@ -93,12 +93,15 @@ class PairRDDFunctions[K, V](self: RDD[(K, V)])
       self.context.clean(createCombiner),
       self.context.clean(mergeValue),
       self.context.clean(mergeCombiners))
+    /* 从这个里面可以看出，调用reduceByKey不一定就会产生shuffle动作, */
     if (self.partitioner == Some(partitioner)) {
+      /* 如果不需要shuffle则产生的就是MapPartitionRDD */
       self.mapPartitions(iter => {
         val context = TaskContext.get()
         new InterruptibleIterator(context, aggregator.combineValuesByKey(iter, context))
       }, preservesPartitioning = true)
     } else {
+      /* 如果需要shuffle，则是产生ShuffleRDD */
       new ShuffledRDD[K, V, C](self, partitioner)
         .setSerializer(serializer)
         .setAggregator(aggregator)

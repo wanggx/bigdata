@@ -95,7 +95,13 @@ class CoGroupedRDD[K: ClassTag](
     this
   }
 
+  /* 获取RDD的依赖时，如果一个RDD依赖多个父RDD，
+   * 并且当前RDD和父RDD的分区器时一样的。那么这种
+   * 依赖就是一对一的依赖，也就是一个分区依赖一个分区
+   * 否则就是shuffle依赖
+   * */
   override def getDependencies: Seq[Dependency[_]] = {
+    /* 一个RDD对应一个依赖 */
     rdds.map { rdd: RDD[_] =>
       if (rdd.partitioner == Some(part)) {
         logDebug("Adding one-to-one dependency with " + rdd)

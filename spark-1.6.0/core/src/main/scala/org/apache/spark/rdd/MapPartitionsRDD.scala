@@ -30,8 +30,11 @@ private[spark] class MapPartitionsRDD[U: ClassTag, T: ClassTag](
     preservesPartitioning: Boolean = false)
   extends RDD[U](prev) {
 
+  /* 这个参数是是否延续保留之前的分区器，这也是为什么RDD有分区数而没有分区器的一种情况 */
   override val partitioner = if (preservesPartitioning) firstParent[T].partitioner else None
 
+  /* MapPartitionRDD的分区和分区数是和父RDD相同的，一般调用mapPartitioin函数产生
+   * 并且父RDD就只有一个而已 */
   override def getPartitions: Array[Partition] = firstParent[T].partitions
 
   override def compute(split: Partition, context: TaskContext): Iterator[U] =

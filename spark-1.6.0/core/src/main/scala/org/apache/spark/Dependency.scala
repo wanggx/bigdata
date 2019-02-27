@@ -68,8 +68,8 @@ abstract class NarrowDependency[T](_rdd: RDD[T]) extends Dependency[T] {
  */
 @DeveloperApi
 class ShuffleDependency[K: ClassTag, V: ClassTag, C: ClassTag](
-    @transient private val _rdd: RDD[_ <: Product2[K, V]],
-    val partitioner: Partitioner,
+    @transient private val _rdd: RDD[_ <: Product2[K, V]],   /* shuffle依赖也只是一个RDD */
+    val partitioner: Partitioner,         /* shuffle的分区器 */
     val serializer: Option[Serializer] = None,
     val keyOrdering: Option[Ordering[K]] = None,
     val aggregator: Option[Aggregator[K, V, C]] = None,

@@ -36,10 +36,10 @@ import org.apache.spark.util.Utils
  *                                this partition refers to
  */
 private[spark] class UnionPartition[T: ClassTag](
-    idx: Int,
-    @transient private val rdd: RDD[T],
-    val parentRddIndex: Int,
-    @transient private val parentRddPartitionIndex: Int)
+    idx: Int,    /* 自己分区的索引 */
+    @transient private val rdd: RDD[T], /* 当前分区依赖分区所在RDD */
+    val parentRddIndex: Int,    /* 依赖RDD的索引 */
+    @transient private val parentRddPartitionIndex: Int)  /* 依赖分区是父RDD的第几个分区 */
   extends Partition {
 
   /* 依赖的父分区 */
@@ -64,6 +64,7 @@ class UnionRDD[T: ClassTag](
     var rdds: Seq[RDD[T]])
   extends RDD[T](sc, Nil) {  // Nil since we implement getDependencies
 
+  /* UnionRDD的分区总和是所有依赖RDD的分区总和 */
   override def getPartitions: Array[Partition] = {
     val array = new Array[Partition](rdds.map(_.partitions.length).sum)
     var pos = 0

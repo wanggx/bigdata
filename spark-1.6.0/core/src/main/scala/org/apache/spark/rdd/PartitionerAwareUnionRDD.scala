@@ -31,7 +31,7 @@ import org.apache.spark.util.Utils
 private[spark]
 class PartitionerAwareUnionRDDPartition(
     @transient val rdds: Seq[RDD[_]],
-    val idx: Int
+    val idx: Int   /* 分区索引 */
   ) extends Partition {
   var parents = rdds.map(_.partitions(idx)).toArray
 
