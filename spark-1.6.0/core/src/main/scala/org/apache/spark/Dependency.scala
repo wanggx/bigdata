@@ -93,6 +93,8 @@ class ShuffleDependency[K: ClassTag, V: ClassTag, C: ClassTag](
   val shuffleHandle: ShuffleHandle = _rdd.context.env.shuffleManager.registerShuffle(
     shuffleId, _rdd.partitions.size, this)
 
+  /* 注册需要清理掉的shuffle，例如shuffle产生的文件啥的，
+   * 注意清理的动作是由gc触发的，当对象被gc之后再触发clean动作 */
   _rdd.sparkContext.cleaner.foreach(_.registerShuffleForCleanup(this))
 }
 

@@ -78,6 +78,7 @@ class UnionRDD[T: ClassTag](
   override def getDependencies: Seq[Dependency[_]] = {
     val deps = new ArrayBuffer[Dependency[_]]
     var pos = 0
+    /* 总共有多少个RDD就有多少个Range依赖 */
     for (rdd <- rdds) {
       deps += new RangeDependency(rdd, 0, pos, rdd.partitions.length)
       pos += rdd.partitions.length

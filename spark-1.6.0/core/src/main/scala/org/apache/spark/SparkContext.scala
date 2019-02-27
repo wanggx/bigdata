@@ -1610,6 +1610,8 @@ class SparkContext(config: SparkConf) extends Logging with ExecutorAllocationCli
   /**
    * Unpersist an RDD from memory and/or disk storage
    */
+  /* 反持久化RDD，通过blockmanagermaster来通知各个Executor来
+   * 删除对应Executor中RDD持久化的数据 */
   private[spark] def unpersistRDD(rddId: Int, blocking: Boolean = true) {
     env.blockManager.master.removeRdd(rddId, blocking)
     persistentRdds.remove(rddId)

@@ -265,6 +265,7 @@ abstract class RDD[T: ClassTag](
    * subclasses of RDD.
    */
   final def iterator(split: Partition, context: TaskContext): Iterator[T] = {
+    /* 判断RDD的存储级别，如果有缓存，则从缓存管理器当中进行处理 */
     if (storageLevel != StorageLevel.NONE) {
       SparkEnv.get.cacheManager.getOrCompute(this, split, context, storageLevel)
     } else {
@@ -1607,6 +1608,7 @@ abstract class RDD[T: ClassTag](
   // Other internal methods and fields
   // =======================================================================
 
+  /* RDD的Storage Level设置之后就不可修改 */
   private var storageLevel: StorageLevel = StorageLevel.NONE
 
   /** User code that created this RDD (e.g. `textFile`, `parallelize`). */
@@ -1659,6 +1661,7 @@ abstract class RDD[T: ClassTag](
     this.mapPartitions(identity, preservesPartitioning = true)(classTag)
   }
 
+  /* 避免多次执行checkpoint */
   // Avoid handling doCheckpoint multiple times to prevent excessive recursion
   @transient private var doCheckpointCalled = false
 

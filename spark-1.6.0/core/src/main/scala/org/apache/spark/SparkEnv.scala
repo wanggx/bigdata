@@ -370,6 +370,7 @@ object SparkEnv extends Logging {
 
     val broadcastManager = new BroadcastManager(isDriver, conf, securityManager)
 
+    /* 系统的缓存管理器，例如RDD调用cache操作 */
     val cacheManager = new CacheManager(blockManager)
 
     val metricsSystem = if (isDriver) {

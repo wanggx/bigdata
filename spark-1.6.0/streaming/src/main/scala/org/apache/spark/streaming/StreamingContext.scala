@@ -854,6 +854,11 @@ object StreamingContext extends Logging {
    *                       error in reading checkpoint data. By default, an exception will be
    *                       thrown on error.
    */
+  /* 注意关于流式应用的StreamingContext的创建，如果启用了checkpoint机制
+   * 则在应用里面不能直接new一个StreamingContext，这样应用重启的时候，
+   * checkpoint就没啥用了，需要调用getOrCreate接口，先判断从checkpointDir
+   * 中是否可以恢复StreamingContext
+   * */
   def getOrCreate(
       checkpointPath: String,
       creatingFunc: () => StreamingContext,
