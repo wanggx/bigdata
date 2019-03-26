@@ -221,6 +221,7 @@ class SparkSubmitCommandBuilder extends AbstractCommandBuilder {
     }
 
     addPermGenSizeOpt(cmd);
+    /* 第一个参数依然是SparkSubmit类 */
     cmd.add("org.apache.spark.deploy.SparkSubmit");
     cmd.addAll(buildSparkSubmitArgs());
     return cmd;

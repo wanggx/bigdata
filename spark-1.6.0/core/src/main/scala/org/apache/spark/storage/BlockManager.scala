@@ -75,6 +75,7 @@ private[spark] class BlockManager(
 
   val diskBlockManager = new DiskBlockManager(this, conf)
 
+  /* 本地的记录块以及块的存储情况 */
   private val blockInfo = new TimeStampedHashMap[BlockId, BlockInfo]
 
   private val futureExecutionContext = ExecutionContext.fromExecutorService(
@@ -415,6 +416,7 @@ private[spark] class BlockManager(
   /**
    * Get block from local block manager.
    */
+  /* 判断从本地是否可以拿到块 */
   def getLocal(blockId: BlockId): Option[BlockResult] = {
     logDebug(s"Getting local block $blockId")
     doGetLocal(blockId, asBlockResult = true).asInstanceOf[Option[BlockResult]]

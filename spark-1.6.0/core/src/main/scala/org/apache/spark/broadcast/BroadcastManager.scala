@@ -39,6 +39,7 @@ private[spark] class BroadcastManager(
   private def initialize() {
     synchronized {
       if (!initialized) {
+        /* 获取广播变量创建工程 */
         val broadcastFactoryClass =
           conf.get("spark.broadcast.factory", "org.apache.spark.broadcast.TorrentBroadcastFactory")
 
@@ -57,6 +58,7 @@ private[spark] class BroadcastManager(
     broadcastFactory.stop()
   }
 
+  /* 广播变量唯一id */
   private val nextBroadcastId = new AtomicLong(0)
 
   def newBroadcast[T: ClassTag](value_ : T, isLocal: Boolean): Broadcast[T] = {

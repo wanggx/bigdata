@@ -47,6 +47,8 @@ class Main {
    * character. On Windows, the output is a command line suitable for direct execution from the
    * script.
    */
+  /* 注意此处的参数格式，第一个参数为org.apache.spark.deploy.SparkSubmit，
+   * 后面的参数就是spark-submit提交时，自己指定的参数 */
   public static void main(String[] argsArray) throws Exception {
     checkArgument(argsArray.length > 0, "Not enough arguments: missing class name.");
 
@@ -55,6 +57,7 @@ class Main {
 
     boolean printLaunchCommand = !isEmpty(System.getenv("SPARK_PRINT_LAUNCH_COMMAND"));
     AbstractCommandBuilder builder;
+    /* 如果是SparkSubmit类 */
     if (className.equals("org.apache.spark.deploy.SparkSubmit")) {
       try {
         builder = new SparkSubmitCommandBuilder(args);

@@ -207,6 +207,7 @@ object SparkEnv extends Logging {
    * Create a SparkEnv for an executor.
    * In coarse-grained mode, the executor provides an actor system that is already instantiated.
    */
+  /* 在Executor当中创建SparkEnv环境 */
   private[spark] def createExecutorEnv(
       conf: SparkConf,
       executorId: String,
@@ -325,6 +326,7 @@ object SparkEnv extends Logging {
       }
     }
 
+    /* 根据是否Driver来创建MapoutputTracker */
     val mapOutputTracker = if (isDriver) {
       new MapOutputTrackerMaster(conf)
     } else {
@@ -358,6 +360,7 @@ object SparkEnv extends Logging {
 
     val blockTransferService = new NettyBlockTransferService(conf, securityManager, numUsableCores)
 
+    /* 注意这些是在SparkEnv当中初始化的，在Executor当中也会存在对masterendpoint的引用 */
     val blockManagerMaster = new BlockManagerMaster(registerOrLookupEndpoint(
       BlockManagerMaster.DRIVER_ENDPOINT_NAME,
       new BlockManagerMasterEndpoint(rpcEnv, isLocal, conf, listenerBus)),
@@ -368,6 +371,7 @@ object SparkEnv extends Logging {
       serializer, conf, memoryManager, mapOutputTracker, shuffleManager,
       blockTransferService, securityManager, numUsableCores)
 
+    /* 创建广播管理器  */
     val broadcastManager = new BroadcastManager(isDriver, conf, securityManager)
 
     /* 系统的缓存管理器，例如RDD调用cache操作 */

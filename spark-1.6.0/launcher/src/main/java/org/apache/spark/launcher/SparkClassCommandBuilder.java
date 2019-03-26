@@ -32,6 +32,7 @@ import static org.apache.spark.launcher.CommandBuilderUtils.*;
  * This class handles building the command to launch all internal Spark classes except for
  * SparkSubmit (which is handled by {@link SparkSubmitCommandBuilder} class.
  */
+/* 这个使用spark-class来启动除SparkSubmit之外的其他类，例如master，worker或其他服务 */
 class SparkClassCommandBuilder extends AbstractCommandBuilder {
 
   private final String className;

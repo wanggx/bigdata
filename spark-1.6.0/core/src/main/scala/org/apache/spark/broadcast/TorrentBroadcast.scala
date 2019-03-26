@@ -166,7 +166,7 @@ private[spark] class TorrentBroadcast[T: ClassTag](obj: T, id: Long)
     TorrentBroadcast.synchronized {
       setConf(SparkEnv.get.conf)
       SparkEnv.get.blockManager.getLocal(broadcastId).map(_.data.next()) match {
-        case Some(x) =>
+        case Some(x) =>      /* 如果能从本地读到 */
           x.asInstanceOf[T]
 
         case None =>

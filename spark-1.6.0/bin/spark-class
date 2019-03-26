@@ -81,6 +81,7 @@ fi
 # characters that would be otherwise interpreted by the shell. Read that in a while loop, populating
 # an array that will be used to exec the final command.
 CMD=()
+# 注意这里是先调用Main函数来解析启动命令，然后在使用shell来执行解析过后的命令
 while IFS= read -d '' -r ARG; do
   CMD+=("$ARG")
 done < <("$RUNNER" -cp "$LAUNCH_CLASSPATH" org.apache.spark.launcher.Main "$@")
