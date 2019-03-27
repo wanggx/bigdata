@@ -29,6 +29,7 @@ import org.apache.spark.util.{ThreadUtils, Utils}
  *
  * See `LauncherServer` for an explanation of how launcher communication works.
  */
+/* 和LauncherServer通信，比如发送Hello，SetAppId,SetState等消息 */
 private[spark] abstract class LauncherBackend {
 
   private var clientThread: Thread = _
@@ -39,6 +40,7 @@ private[spark] abstract class LauncherBackend {
   def connect(): Unit = {
     val port = sys.env.get(LauncherProtocol.ENV_LAUNCHER_PORT).map(_.toInt)
     val secret = sys.env.get(LauncherProtocol.ENV_LAUNCHER_SECRET)
+    /* 只有SparkLauncher传递过两个参数的时候才会创建链接 */
     if (port != None && secret != None) {
       val s = new Socket(InetAddress.getLoopbackAddress(), port.get)
       connection = new BackendConnection(s)

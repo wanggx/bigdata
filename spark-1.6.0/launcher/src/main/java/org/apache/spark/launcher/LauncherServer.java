@@ -77,6 +77,7 @@ import static org.apache.spark.launcher.LauncherProtocol.*;
  * application must remain alive for the duration of the application (or until the app handle is
  * disconnected).
  */
+/* 创建一个启动spark应用的服务  */
 class LauncherServer implements Closeable {
 
   private static final Logger LOG = Logger.getLogger(LauncherServer.class.getName());
@@ -223,6 +224,7 @@ class LauncherServer implements Closeable {
   private void acceptConnections() {
     try {
       while (running) {
+          /* 接收一个客户端的链接 */
         final Socket client = server.accept();
         TimerTask timeout = new TimerTask() {
           @Override

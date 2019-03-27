@@ -45,6 +45,7 @@ class ChildProcAppHandle implements SparkAppHandle {
   private String appId;
   private OutputRedirector redirector;
 
+  /* 每个appHandle都具有一个secret，在LaunchServer当中通过Map进行保存 */
   ChildProcAppHandle(String secret, LauncherServer server) {
     this.secret = secret;
     this.server = server;

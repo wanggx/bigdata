@@ -30,6 +30,7 @@ import java.util.Map;
  * backwards-compatible, so that the launcher can talk to older versions of Spark that support
  * the protocol.
  */
+/* 定义了通信协议 */
 final class LauncherProtocol {
 
   /** Environment variable where the server port is stored. */

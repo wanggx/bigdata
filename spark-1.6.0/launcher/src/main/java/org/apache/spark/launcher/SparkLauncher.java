@@ -384,6 +384,9 @@ public class SparkLauncher {
    * @param listeners Listeners to add to the handle before the app is launched.
    * @return A handle for the launched application.
    */
+
+  /* 通过Launcher的方式来启动Spark应用，避免使用shell的方式来反解析日志，
+   * 这种方式灵活，也很容易获取任务的状态 */
   public SparkAppHandle startApplication(SparkAppHandle.Listener... listeners) throws IOException {
     ChildProcAppHandle handle = LauncherServer.newAppHandle();
     for (SparkAppHandle.Listener l : listeners) {
@@ -411,6 +414,7 @@ public class SparkLauncher {
     String loggerPrefix = getClass().getPackage().getName();
     String loggerName = String.format("%s.app.%s", loggerPrefix, appName);
     ProcessBuilder pb = createBuilder().redirectErrorStream(true);
+    /* 为了告诉启动进程怎么和Launcher通信，开始通信也就有后面的回调操作 */
     pb.environment().put(LauncherProtocol.ENV_LAUNCHER_PORT,
       String.valueOf(LauncherServer.getServerInstance().getPort()));
     pb.environment().put(LauncherProtocol.ENV_LAUNCHER_SECRET, handle.getSecret());
