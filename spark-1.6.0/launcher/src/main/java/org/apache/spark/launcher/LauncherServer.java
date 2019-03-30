@@ -301,6 +301,8 @@ class LauncherServer implements Closeable {
           timeout = null;
           Hello hello = (Hello) msg;
           ChildProcAppHandle handle = pending.remove(hello.secret);
+          /* 客户端启动之后，会和LauncherServer服务进行Hello通信
+           * 同时设置Launcher的状态为Connected，并且保留和Client的链接 */
           if (handle != null) {
             handle.setState(SparkAppHandle.State.CONNECTED);
             handle.setConnection(this);
