@@ -45,6 +45,8 @@ class CartesianPartition(
   }
 }
 
+
+/* 两个rdd的笛卡尔积 */
 private[spark]
 class CartesianRDD[T: ClassTag, U: ClassTag](
     sc: SparkContext,
@@ -55,6 +57,7 @@ class CartesianRDD[T: ClassTag, U: ClassTag](
 
   val numPartitionsInRdd2 = rdd2.partitions.length
 
+  /* 分区数是两个rdd的分区数乘积 */
   override def getPartitions: Array[Partition] = {
     // create the cross product split
     val array = new Array[Partition](rdd1.partitions.length * rdd2.partitions.length)
@@ -72,6 +75,7 @@ class CartesianRDD[T: ClassTag, U: ClassTag](
 
   override def compute(split: Partition, context: TaskContext): Iterator[(T, U)] = {
     val currSplit = split.asInstanceOf[CartesianPartition]
+    /* 将单个分区的数据进行笛卡尔积保存 */
     for (x <- rdd1.iterator(currSplit.s1, context);
          y <- rdd2.iterator(currSplit.s2, context)) yield (x, y)
   }
