@@ -399,6 +399,9 @@ abstract class RDD[T: ClassTag](
     if (shuffle) {
       /** Distributes elements evenly across output partitions, starting from a random partition. */
       val distributePartition = (index: Int, items: Iterator[T]) => {
+        /* 每个分区的数据随机产生一个起点，也就是分配在哪个分区，然后依次轮着放,
+         * 其实这也是解决数据倾斜的一种方式
+         */
         var position = (new Random(index)).nextInt(numPartitions)
         items.map { t =>
           // Note that the hash code of the key will just be the key itself. The HashPartitioner

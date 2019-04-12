@@ -37,7 +37,7 @@ import org.apache.spark.util.Utils
 private[spark] case class CoalescedRDDPartition(
     index: Int,
     @transient rdd: RDD[_],
-    parentsIndices: Array[Int],
+    parentsIndices: Array[Int],    /* 聚合分区依赖的多个父分区 */
     @transient preferredLocation: Option[String] = None) extends Partition {
   var parents: Seq[Partition] = parentsIndices.map(rdd.partitions(_))
 

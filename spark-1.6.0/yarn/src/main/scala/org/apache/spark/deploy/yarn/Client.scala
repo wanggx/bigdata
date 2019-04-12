@@ -84,6 +84,7 @@ private[spark] class Client(
 
   private val launcherBackend = new LauncherBackend() {
     override def onStopRequest(): Unit = {
+      /* 收到停止应用请求时，通过Yarn的Client来杀死应用 */
       if (isClusterMode && appId != null) {
         yarnClient.killApplication(appId)
       } else {
@@ -97,6 +98,7 @@ private[spark] class Client(
 
   private var appId: ApplicationId = null
 
+  /* 向LauncherServer报告自己的状态 */
   def reportLauncherState(state: SparkAppHandle.State): Unit = {
     launcherBackend.setState(state)
   }
@@ -122,6 +124,7 @@ private[spark] class Client(
       launcherBackend.connect()
       // Setup the credentials before doing anything else,
       // so we have don't have issues at any point.
+      /* 验证Spark提交应用的权限 */
       setupCredentials()
       yarnClient.init(yarnConf)
       yarnClient.start()
@@ -159,6 +162,7 @@ private[spark] class Client(
   /**
    * Cleanup application staging directory.
    */
+  /* 清理应用的Staging目录 */
   private def cleanupStagingDir(appId: ApplicationId): Unit = {
     val appStagingDir = getAppStagingDir(appId)
     try {
@@ -186,6 +190,7 @@ private[spark] class Client(
     appContext.setApplicationName(args.appName)
     appContext.setQueue(args.amQueue)
     appContext.setAMContainerSpec(containerContext)
+    /* 设定Yarn应用的类型，例如Spark应用，Flink，TEZ等等 */
     appContext.setApplicationType("SPARK")
     sparkConf.getOption(CONF_SPARK_YARN_APPLICATION_TAGS)
       .map(StringUtils.getTrimmedStringCollection(_))
@@ -831,6 +836,7 @@ private[spark] class Client(
         Nil
       }
     val amClass =
+      /* 如果是集群模式，则应用的am是ApplicationMaster,否则是ExecutorLauncher */
       if (isClusterMode) {
         Utils.classForName("org.apache.spark.deploy.yarn.ApplicationMaster").getName
       } else {
@@ -921,11 +927,13 @@ private[spark] class Client(
    * @param logApplicationReport Whether to log details of the application report every iteration.
    * @return A pair of the yarn application state and the final application state.
    */
+  /* 这里是在监控具体应用的情况，例如使用spark-submit提交的时候，在终端里面看到的输出日志， */
   def monitorApplication(
       appId: ApplicationId,
       returnOnRunning: Boolean = false,
       logApplicationReport: Boolean = true): (YarnApplicationState, FinalApplicationStatus) = {
     val interval = sparkConf.getLong("spark.yarn.report.interval", 1000)
+    /* 记录应用的最后状态 */
     var lastState: YarnApplicationState = null
     while (true) {
       Thread.sleep(interval)
@@ -954,6 +962,7 @@ private[spark] class Client(
         }
       }
 
+      /* 如果应用的状态发生改变，则通知Launcher */
       if (lastState != state) {
         state match {
           case YarnApplicationState.RUNNING =>
@@ -968,6 +977,7 @@ private[spark] class Client(
         }
       }
 
+      /* 如果应用结束，则清理stagingdir */
       if (state == YarnApplicationState.FINISHED ||
         state == YarnApplicationState.FAILED ||
         state == YarnApplicationState.KILLED) {
@@ -1015,6 +1025,7 @@ private[spark] class Client(
    * throw an appropriate SparkException.
    */
   def run(): Unit = {
+    /* 开始应用提交动作 */
     this.appId = submitApplication()
     if (!launcherBackend.isConnected() && fireAndForget) {
       val report = getApplicationReport(appId)
@@ -1072,9 +1083,14 @@ object Client extends Logging {
 
     val args = new ClientArguments(argStrings, sparkConf)
     // to maintain backwards-compatibility
+    /* 判断Executor是否启动动态Executor分配，
+     * 如果启用动态分配，则在参数--executors-num中指定的就不起作用
+     * 而是根据动态参数的配置来确定
+     * */
     if (!Utils.isDynamicAllocationEnabled(sparkConf)) {
       sparkConf.setIfMissing("spark.executor.instances", args.numExecutors.toString)
     }
+    /* 开始执行Yarn Client的run函数，并开始真正的提交应用 */
     new Client(args, sparkConf).run()
   }
 

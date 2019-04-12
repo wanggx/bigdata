@@ -73,6 +73,7 @@ private[spark] class ApplicationMaster(
         "spark.executor.instances"
       }
     val effectiveNumExecutors = sparkConf.getInt(defaultKey, 0)
+    /* 默认情况下，Executors的可失败次数不超过3次 */
     val defaultMaxNumExecutorFailures = math.max(3, 2 * effectiveNumExecutors)
 
     sparkConf.getInt("spark.yarn.max.executor.failures", defaultMaxNumExecutorFailures)

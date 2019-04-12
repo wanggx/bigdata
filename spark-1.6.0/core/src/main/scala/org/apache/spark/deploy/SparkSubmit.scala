@@ -549,6 +549,7 @@ object SparkSubmit {
 
     // assure a keytab is available from any place in a JVM
     if (clusterManager == YARN || clusterManager == LOCAL) {
+      /* 这里判断是否从keytab登陆 */
       if (args.principal != null) {
         require(args.keytab != null, "Keytab must be specified when principal is specified")
         if (!new File(args.keytab).exists()) {
@@ -560,7 +561,7 @@ object SparkSubmit {
           // properties and then loaded by SparkConf
           sysProps.put("spark.yarn.keytab", args.keytab)
           sysProps.put("spark.yarn.principal", args.principal)
-
+          /* 开始执行keytab认证  */
           UserGroupInformation.loginUserFromKeytab(args.principal, args.keytab)
         }
       }
