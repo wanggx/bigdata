@@ -286,6 +286,7 @@ private[spark] class Client(
         "Please check the values of 'yarn.scheduler.maximum-allocation-mb' and/or " +
         "'yarn.nodemanager.resource.memory-mb'.")
     }
+    /* 直接內存和堆內存綜合大小不能超過YARN限制的大小 */
     val amMem = args.amMemory + amMemoryOverhead
     if (amMem > maxMem) {
       throw new IllegalArgumentException(s"Required AM memory (${args.amMemory}" +

@@ -224,10 +224,12 @@ object YarnSparkHadoopUtil {
   // the common cases. Memory overhead tends to grow with container size.
 
   val MEMORY_OVERHEAD_FACTOR = 0.10
+  /* 直接內存最小值爲384M */
   val MEMORY_OVERHEAD_MIN = 384
 
   val ANY_HOST = "*"
 
+  /* 默认Executor为2个 */
   val DEFAULT_NUMBER_EXECUTORS = 2
 
   // All RM requests are issued with same priority : we do not (yet) have any distinction between
@@ -408,6 +410,7 @@ object YarnSparkHadoopUtil {
 
       initialNumExecutors
     } else {
+      /* 先判断有没有设置--executor-num参数,如果没有设置则看环境变量,环境变量没有设置则取默认值 */
       val targetNumExecutors =
         sys.env.get("SPARK_EXECUTOR_INSTANCES").map(_.toInt).getOrElse(numExecutors)
       // System property can override environment variable.

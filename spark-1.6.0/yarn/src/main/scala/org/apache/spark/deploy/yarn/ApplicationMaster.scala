@@ -689,6 +689,7 @@ object ApplicationMaster extends Logging {
  * This object does not provide any special functionality. It exists so that it's easy to tell
  * apart the client-mode AM from the cluster-mode AM when using tools such as ps or jps.
  */
+/* 没啥用,就是在使用命令行查看进程的时候,区别Cluster和Client的 */
 object ExecutorLauncher {
 
   def main(args: Array[String]): Unit = {

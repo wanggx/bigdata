@@ -37,6 +37,7 @@ private[spark] class ClientArguments(args: Array[String], sparkConf: SparkConf) 
   var executorMemory = 1024 // MB
   var executorCores = 1
   var numExecutors = DEFAULT_NUMBER_EXECUTORS
+  /* 默认在default队列当中运行 */
   var amQueue = sparkConf.get("spark.yarn.queue", "default")
   var amMemory: Int = 512 // MB
   var amCores: Int = 1
@@ -60,7 +61,9 @@ private[spark] class ClientArguments(args: Array[String], sparkConf: SparkConf) 
   validateArgs()
 
   // Additional memory to allocate to containers
+  /* 通过集群的模式来判断内存overhead的取值参数 */
   val amMemoryOverheadConf = if (isClusterMode) driverMemOverheadKey else amMemOverheadKey
+  /* 如果设置了参数则根据参数来确定,如果没有设置,则取--driver-memory设置值的10%,以及默认最小值两者较大的为准 */
   val amMemoryOverhead = sparkConf.getInt(amMemoryOverheadConf,
     math.max((MEMORY_OVERHEAD_FACTOR * amMemory).toInt, MEMORY_OVERHEAD_MIN))
 
@@ -81,6 +84,7 @@ private[spark] class ClientArguments(args: Array[String], sparkConf: SparkConf) 
       .orNull
     // If dynamic allocation is enabled, start at the configured initial number of executors.
     // Default to minExecutors if no initialExecutors is set.
+    /* 如果Executor动态分配开启,则设置的--executors-num这个参数不起作用 */
     numExecutors = YarnSparkHadoopUtil.getInitialTargetExecutorNumber(sparkConf, numExecutors)
     principal = Option(principal)
       .orElse(sparkConf.getOption("spark.yarn.principal"))
@@ -180,6 +184,7 @@ private[spark] class ClientArguments(args: Array[String], sparkConf: SparkConf) 
           if (args(0) == "--num-workers") {
             println("--num-workers is deprecated. Use --num-executors instead.")
           }
+          /* 设置Executor数量 */
           numExecutors = value
           args = tail
 
