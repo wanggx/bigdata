@@ -216,6 +216,7 @@ object SparkSubmit {
    *   (4) the main class for the child
    * Exposed for testing.
    */
+  /* 注意上面的英文备注 */
   private[deploy] def prepareSubmitEnvironment(args: SparkSubmitArguments)
       : (Seq[String], Seq[String], Map[String, String], String) = {
     // Return values

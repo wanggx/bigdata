@@ -185,6 +185,7 @@ class KafkaRDD[
       }
     }
 
+    /* 开始实际的从kafka当中读取数据 */
     private def fetchBatch: Iterator[MessageAndOffset] = {
       val req = new FetchRequestBuilder()
         .addFetch(part.topic, part.partition, requestOffset, kc.config.fetchMessageMaxBytes)
@@ -204,6 +205,7 @@ class KafkaRDD[
     }
 
     override def getNext(): R = {
+      /* 首先把这个rdd的数据都取到 */
       if (iter == null || !iter.hasNext) {
         iter = fetchBatch
       }

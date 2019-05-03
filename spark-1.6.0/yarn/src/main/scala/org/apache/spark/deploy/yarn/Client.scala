@@ -726,6 +726,7 @@ private[spark] class Client(
         Nil
       }
     val launchEnv = setupLaunchEnv(appStagingDir, pySparkArchives)
+    /* 准备本地的资源文件，例如将本地的jar文件拷贝到hadoop集群单中 */
     val localResources = prepareLocalResources(appStagingDir, pySparkArchives)
 
     // Set the environment variables to be passed on to the executors.
@@ -1027,6 +1028,7 @@ private[spark] class Client(
   def run(): Unit = {
     /* 开始应用提交动作 */
     this.appId = submitApplication()
+    /* 如果是sparklauncher启动的，则直接告诉Launcher的状态 */
     if (!launcherBackend.isConnected() && fireAndForget) {
       val report = getApplicationReport(appId)
       val state = report.getYarnApplicationState
@@ -1036,6 +1038,7 @@ private[spark] class Client(
         throw new SparkException(s"Application $appId finished with status: $state")
       }
     } else {
+      /* 否则spark-submit提交的输出监控日志 */
       val (yarnApplicationState, finalApplicationStatus) = monitorApplication(appId)
       if (yarnApplicationState == YarnApplicationState.FAILED ||
         finalApplicationStatus == FinalApplicationStatus.FAILED) {
@@ -1165,6 +1168,7 @@ object Client extends Logging {
   /**
    * Return the path to the given application's staging directory.
    */
+  /* 根据应用的id构造应用的staging目录  */
   private def getAppStagingDir(appId: ApplicationId): String = {
     buildPath(SPARK_STAGING, appId.toString())
   }
