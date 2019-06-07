@@ -2343,6 +2343,7 @@ class SparkContext(config: SparkConf) extends Logging {
    * This should be called after all internal listeners have been registered with the listener bus
    * (e.g. after the web UI and event logging listeners have been registered).
    */
+  /* 设置和启动SparkContext的监听器总线，没有提供接口来添加Listener，而是通过配置参数 */
   private def setupAndStartListenerBus(): Unit = {
     // Use reflection to instantiate listeners specified via `spark.extraListeners`
     try {

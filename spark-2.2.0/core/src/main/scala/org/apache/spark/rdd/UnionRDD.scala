@@ -83,6 +83,7 @@ class UnionRDD[T: ClassTag](
     }
     val array = new Array[Partition](parRDDs.map(_.partitions.length).seq.sum)
     var pos = 0
+    /* 同样的道理，一个UnionRdd的每个分区其实是对应每个RDD的第几个分区 */
     for ((rdd, rddIndex) <- rdds.zipWithIndex; split <- rdd.partitions) {
       array(pos) = new UnionPartition(pos, rdd, rddIndex, split.index)
       pos += 1
@@ -93,6 +94,7 @@ class UnionRDD[T: ClassTag](
   override def getDependencies: Seq[Dependency[_]] = {
     val deps = new ArrayBuffer[Dependency[_]]
     var pos = 0
+    /* 有多少个RDD就是有多少个依赖 */
     for (rdd <- rdds) {
       deps += new RangeDependency(rdd, 0, pos, rdd.partitions.length)
       pos += rdd.partitions.length
