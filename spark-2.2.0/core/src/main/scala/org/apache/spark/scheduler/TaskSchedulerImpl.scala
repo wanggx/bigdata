@@ -173,6 +173,7 @@ private[spark] class TaskSchedulerImpl private[scheduler](
   override def start() {
     backend.start()
 
+    /* local模式是默认不启动推测模式的 */
     if (!isLocal && conf.getBoolean("spark.speculation", false)) {
       logInfo("Starting speculative execution thread")
       speculationScheduler.scheduleWithFixedDelay(new Runnable {

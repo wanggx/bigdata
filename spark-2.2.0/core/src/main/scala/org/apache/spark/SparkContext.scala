@@ -459,6 +459,7 @@ class SparkContext(config: SparkConf) extends Logging {
     // the bound port to the cluster manager properly
     _ui.foreach(_.bind())
 
+    /* 根据SparkConf来生成hadoopConf */
     _hadoopConfiguration = SparkHadoopUtil.get.newConfiguration(_conf)
 
     // Add each JAR given through the constructor

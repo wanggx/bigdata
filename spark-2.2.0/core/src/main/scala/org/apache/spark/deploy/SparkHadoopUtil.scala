@@ -101,6 +101,7 @@ class SparkHadoopUtil extends Logging {
       }
       // Copy any "spark.hadoop.foo=bar" system properties into conf as "foo=bar"
       conf.getAll.foreach { case (key, value) =>
+        /* 注意这里Hadoop的参数可以同个--conf来，但是前面要加spark.hadoop.这个前缀 */
         if (key.startsWith("spark.hadoop.")) {
           hadoopConf.set(key.substring("spark.hadoop.".length), value)
         }

@@ -153,6 +153,8 @@ object SparkSubmit extends CommandLineUtils {
    */
   @tailrec
   private def submit(args: SparkSubmitArguments): Unit = {
+
+    /* 启动参数以及应用的属性 */
     val (childArgs, childClasspath, sysProps, childMainClass) = prepareSubmitEnvironment(args)
 
     def doRunMain(): Unit = {

@@ -66,6 +66,7 @@ private[deploy] class SparkSubmitArguments(args: Seq[String], env: Map[String, S
   var pyFiles: String = null
   var isR: Boolean = false
   var action: SparkSubmitAction = null
+  /* spark的配置参数，通过--conf指定的，一般都是以spark开头的 */
   val sparkProperties: HashMap[String, String] = new HashMap[String, String]()
   /* 代理用户 */
   var proxyUser: String = null
@@ -134,6 +135,7 @@ private[deploy] class SparkSubmitArguments(args: Seq[String], env: Map[String, S
   /**
    * Remove keys that don't start with "spark." from `sparkProperties`.
    */
+  /* 注意这里会删掉不是以spark.开头的参数 */
   private def ignoreNonSparkProperties(): Unit = {
     sparkProperties.foreach { case (k, v) =>
       if (!k.startsWith("spark.")) {
@@ -419,6 +421,7 @@ private[deploy] class SparkSubmitArguments(args: Seq[String], env: Map[String, S
       case REPOSITORIES =>
         repositories = value
 
+      /* 解析spark_submit 通过--conf指定的参数 */
       case CONF =>
         val (confName, confValue) = SparkSubmit.parseSparkConfProperty(value)
         sparkProperties(confName) = confValue
