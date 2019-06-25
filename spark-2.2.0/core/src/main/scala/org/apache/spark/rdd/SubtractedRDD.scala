@@ -53,7 +53,8 @@ private[spark] class SubtractedRDD[K: ClassTag, V: ClassTag, W: ClassTag](
     part: Partitioner)
   extends RDD[(K, V)](rdd1.context, Nil) {
 
-
+  /* 对于一个相减操作的RDD，需要依赖两个RDD，两个RDD的依赖是不想关的，
+   * 一个可以是窄依赖一个可以是宽依赖 */
   override def getDependencies: Seq[Dependency[_]] = {
     def rddDependency[T1: ClassTag, T2: ClassTag](rdd: RDD[_ <: Product2[T1, T2]])
       : Dependency[_] = {
@@ -115,6 +116,7 @@ private[spark] class SubtractedRDD[K: ClassTag, V: ClassTag, W: ClassTag](
       }
     }
 
+    /* 现将t1数据拉过来，然后减去从t2中拉过来的数据 */
     // the first dep is rdd1; add all values to the map
     integrate(0, t => getSeq(t._1) += t._2)
     // the second dep is rdd2; remove all of its keys

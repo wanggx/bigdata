@@ -97,7 +97,10 @@ class CoGroupedRDD[K: ClassTag](
   }
 
   override def getDependencies: Seq[Dependency[_]] = {
+
+    /* 依赖的数量也是根据RDD的数量来确认的，每个RDD单独一个依赖 */
     rdds.map { rdd: RDD[_] =>
+      /* 如果分区器是一致的，则不用进行shuffle */
       if (rdd.partitioner == Some(part)) {
         logDebug("Adding one-to-one dependency with " + rdd)
         new OneToOneDependency(rdd)
