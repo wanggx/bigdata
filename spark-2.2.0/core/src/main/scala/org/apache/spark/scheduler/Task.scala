@@ -77,6 +77,7 @@ private[spark] abstract class Task[T](
       attemptNumber: Int,
       metricsSystem: MetricsSystem): T = {
     SparkEnv.get.blockManager.registerTask(taskAttemptId)
+    /* 新建任务执行的上下文 */
     context = new TaskContextImpl(
       stageId,
       partitionId,
@@ -162,6 +163,7 @@ private[spark] abstract class Task[T](
   // Task context, to be initialized in run().
   @transient var context: TaskContextImpl = _
 
+  /* 实际执行任务的线程 */
   // The actual Thread on which the task is running, if any. Initialized in run().
   @volatile @transient private var taskThread: Thread = _
 

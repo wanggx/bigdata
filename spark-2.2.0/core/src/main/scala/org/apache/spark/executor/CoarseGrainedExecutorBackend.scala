@@ -76,6 +76,7 @@ private[spark] class CoarseGrainedExecutorBackend(
       .map(e => (e._1.substring(prefix.length).toLowerCase(Locale.ROOT), e._2))
   }
 
+  /* Executor的RPC通信 */
   override def receive: PartialFunction[Any, Unit] = {
     case RegisteredExecutor =>
       logInfo("Successfully registered with driver")
@@ -88,7 +89,7 @@ private[spark] class CoarseGrainedExecutorBackend(
 
     case RegisterExecutorFailed(message) =>
       exitExecutor(1, "Slave registration failed: " + message)
-
+    /* Driver发送启动任务的请求 */
     case LaunchTask(data) =>
       if (executor == null) {
         exitExecutor(1, "Received LaunchTask command but executor was null")

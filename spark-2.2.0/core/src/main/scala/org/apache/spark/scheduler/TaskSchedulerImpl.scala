@@ -99,6 +99,7 @@ private[spark] class TaskSchedulerImpl private[scheduler](
   private val taskSetsByStageIdAndAttempt = new HashMap[Int, HashMap[Int, TaskSetManager]]
 
   // Protected by `this`
+  /* 映射id和TaskSetManager的关系  */
   private[scheduler] val taskIdToTaskSetManager = new HashMap[Long, TaskSetManager]
   val taskIdToExecutorId = new HashMap[Long, String]
 
@@ -398,6 +399,7 @@ private[spark] class TaskSchedulerImpl private[scheduler](
     Random.shuffle(offers)
   }
 
+  /* 任务的状态更新 */
   def statusUpdate(tid: Long, state: TaskState, serializedData: ByteBuffer) {
     var failedExecutor: Option[String] = None
     var reason: Option[ExecutorLossReason] = None

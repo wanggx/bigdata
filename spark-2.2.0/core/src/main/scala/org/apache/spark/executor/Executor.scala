@@ -98,6 +98,7 @@ private[spark] class Executor(
           new UninterruptibleThread(r, "unused") // thread name will be set by ThreadFactoryBuilder
       })
       .build()
+    /* 使用的是Cached线程池 */
     Executors.newCachedThreadPool(threadFactory).asInstanceOf[ThreadPoolExecutor]
   }
   private val executorSource = new ExecutorSource(threadPool, executorId)
@@ -141,6 +142,7 @@ private[spark] class Executor(
   private val maxResultSize = Utils.getMaxResultSize(conf)
 
   // Maintains the list of running tasks.
+  /* 记录Executor中正在运行的任务映射 */
   private val runningTasks = new ConcurrentHashMap[Long, TaskRunner]
 
   // Executor for the heartbeat task.
@@ -167,6 +169,7 @@ private[spark] class Executor(
 
   private[executor] def numRunningTasks: Int = runningTasks.size()
 
+  /* Executor启动一个任务 */
   def launchTask(context: ExecutorBackend, taskDescription: TaskDescription): Unit = {
     val tr = new TaskRunner(context, taskDescription)
     runningTasks.put(taskDescription.taskId, tr)
@@ -256,6 +259,7 @@ private[spark] class Executor(
      */
     @volatile var task: Task[Any] = _
 
+    /* TaskRunner试图杀死Task */
     def kill(interruptThread: Boolean, reason: String): Unit = {
       logInfo(s"Executor is trying to kill $taskName (TID $taskId), reason: $reason")
       reasonIfKilled = Some(reason)
@@ -332,6 +336,7 @@ private[spark] class Executor(
         } else 0L
         var threwException = true
         val value = try {
+          /* 开始运行真正的任务 */
           val res = task.run(
             taskAttemptId = taskId,
             attemptNumber = taskDescription.attemptNumber,

@@ -67,6 +67,7 @@ private[spark] object TaskDescription {
     }
   }
 
+  /* 将任务的描述编码成字节，方便在网络中传输 */
   def encode(taskDescription: TaskDescription): ByteBuffer = {
     val bytesOut = new ByteBufferOutputStream(4096)
     val dataOut = new DataOutputStream(bytesOut)
@@ -110,6 +111,7 @@ private[spark] object TaskDescription {
     map
   }
 
+  /* 将字节反解码成任务描述 */
   def decode(byteBuffer: ByteBuffer): TaskDescription = {
     val dataIn = new DataInputStream(new ByteBufferInputStream(byteBuffer))
     val taskId = dataIn.readLong()

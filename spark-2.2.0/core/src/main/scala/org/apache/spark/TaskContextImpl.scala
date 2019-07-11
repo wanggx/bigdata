@@ -140,10 +140,12 @@ private[spark] class TaskContextImpl(
   }
 
   /** Marks the task for interruption, i.e. cancellation. */
+  /* 标记任务被中断 */
   private[spark] def markInterrupted(reason: String): Unit = {
     reasonIfKilled = Some(reason)
   }
 
+  /* 判断Task执行是否被Interrupt，如果被中断则会抛出异常 */
   private[spark] override def killTaskIfInterrupted(): Unit = {
     val reason = reasonIfKilled
     if (reason.isDefined) {
