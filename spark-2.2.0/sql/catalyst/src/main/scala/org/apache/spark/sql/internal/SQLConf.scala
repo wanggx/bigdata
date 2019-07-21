@@ -120,7 +120,7 @@ object SQLConf {
       "run, and file-based data source tables where the statistics are computed directly on " +
       "the files of data.")
     .longConf
-    .createWithDefault(10L * 1024 * 1024)
+    .createWithDefault(10L * 1024 * 1024)   /* 默认是10M以下的进行数据广播 */
 
   val LIMIT_SCALE_UP_FACTOR = buildConf("spark.sql.limit.scaleUpFactor")
     .internal()
@@ -130,6 +130,7 @@ object SQLConf {
     .intConf
     .createWithDefault(4)
 
+  /* 如果不能从表的元数据中获取表的大小，则从hdfs文件当中去获取表大小 */
   val ENABLE_FALL_BACK_TO_HDFS_FOR_STATS =
     buildConf("spark.sql.statistics.fallBackToHdfs")
     .doc("If the table statistics are not available from table metadata enable fall back to hdfs." +
@@ -146,17 +147,21 @@ object SQLConf {
     .longConf
     .createWithDefault(Long.MaxValue)
 
+  /* sparksql进行shuffle的默认分区 */
   val SHUFFLE_PARTITIONS = buildConf("spark.sql.shuffle.partitions")
     .doc("The default number of partitions to use when shuffling data for joins or aggregations.")
     .intConf
     .createWithDefault(200)
 
+  /* 最大大小 */
   val SHUFFLE_TARGET_POSTSHUFFLE_INPUT_SIZE =
     buildConf("spark.sql.adaptive.shuffle.targetPostShuffleInputSize")
       .doc("The target post-shuffle input size in bytes of a task.")
       .bytesConf(ByteUnit.BYTE)
       .createWithDefault(64 * 1024 * 1024)
 
+  /* 是否开启分区调整，实际上在shuffle的时候有些分区的数据量会很小，从优化的角度考虑
+   * 可以将多个分区合并到一个分区里面，从某种程度上提高了输出文件的大小，也解决了输出小文件的问题 */
   val ADAPTIVE_EXECUTION_ENABLED = buildConf("spark.sql.adaptive.enabled")
     .doc("When true, enable adaptive query execution.")
     .booleanConf
@@ -520,6 +525,7 @@ object SQLConf {
     .intConf
     .createWithDefault(20)
 
+  /* 一个分区当中读入的最多数据量 */
   val FILES_MAX_PARTITION_BYTES = buildConf("spark.sql.files.maxPartitionBytes")
     .doc("The maximum number of bytes to pack into a single partition when reading files.")
     .longConf
