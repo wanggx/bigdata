@@ -902,6 +902,7 @@ object SparkSession {
           // set app name if not given
           val randomAppName = java.util.UUID.randomUUID().toString
           val sparkConf = new SparkConf()
+          /* 将配置都写到SparkConf */
           options.foreach { case (k, v) => sparkConf.set(k, v) }
           if (!sparkConf.contains("spark.app.name")) {
             sparkConf.setAppName(randomAppName)
@@ -1031,6 +1032,7 @@ object SparkSession {
 
   private def sessionStateClassName(conf: SparkConf): String = {
     conf.get(CATALOG_IMPLEMENTATION) match {
+      /* hive:Hive自己的session管理,in-memory:Spark的session状态管理 */
       case "hive" => HIVE_SESSION_STATE_BUILDER_CLASS_NAME
       case "in-memory" => classOf[SessionStateBuilder].getCanonicalName
     }
@@ -1057,6 +1059,7 @@ object SparkSession {
   /**
    * @return true if Hive classes can be loaded, otherwise false.
    */
+  /* 判断Hive的配置类是否存在，如果存在则启动Hive支持 */
   private[spark] def hiveClassesArePresent: Boolean = {
     try {
       Utils.classForName(HIVE_SESSION_STATE_BUILDER_CLASS_NAME)

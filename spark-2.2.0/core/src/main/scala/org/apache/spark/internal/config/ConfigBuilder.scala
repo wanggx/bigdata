@@ -173,6 +173,7 @@ private[spark] class TypedConfigBuilder[T](
  *
  * @see TypedConfigBuilder
  */
+/* 一个基本的配置项构造器，构建的结果就是ConfigEntry，可以使用工厂设计模式的思路来理解 */
 private[spark] case class ConfigBuilder(key: String) {
 
   import ConfigHelpers._

@@ -57,6 +57,7 @@ private class CleanupTaskWeakReference(
  * to be processed when the associated object goes out of scope of the application. Actual
  * cleanup is performed in a separate daemon thread.
  */
+/* 线程在不断的检查是否有资源可以被释放 */
 private[spark] class ContextCleaner(sc: SparkContext) extends Logging {
 
   /**
@@ -146,6 +147,7 @@ private[spark] class ContextCleaner(sc: SparkContext) extends Logging {
   }
 
   /** Register an RDD for cleanup when it is garbage collected. */
+  /* 注册rdd以备不使用时清理 */
   def registerRDDForCleanup(rdd: RDD[_]): Unit = {
     registerForCleanup(rdd, CleanRDD(rdd.id))
   }
@@ -206,6 +208,7 @@ private[spark] class ContextCleaner(sc: SparkContext) extends Logging {
     }
   }
 
+  /* 开始真正的清理RDD，释放空间 */
   /** Perform RDD cleanup. */
   def doCleanupRDD(rddId: Int, blocking: Boolean): Unit = {
     try {
@@ -283,6 +286,7 @@ private object ContextCleaner {
 /**
  * Listener class used for testing when any item has been cleaned by the Cleaner class.
  */
+/* 定义的clean监听器 */
 private[spark] trait CleanerListener {
   def rddCleaned(rddId: Int): Unit
   def shuffleCleaned(shuffleId: Int): Unit

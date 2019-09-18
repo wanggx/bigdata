@@ -553,6 +553,7 @@ class SparkContext(config: SparkConf) extends Logging {
       }
     _executorAllocationManager.foreach(_.start())
 
+    /* 默认是不使用的应用给及时清理，释放内存空间 */
     _cleaner =
       if (_conf.getBoolean("spark.cleaner.referenceTracking", true)) {
         Some(new ContextCleaner(this))
@@ -1784,6 +1785,9 @@ class SparkContext(config: SparkConf) extends Logging {
   /**
    * Register an RDD to be persisted in memory and/or disk storage
    */
+  /*
+   * 注册对应的rdd，表示哪一个rdd被持久化
+   *  */
   private[spark] def persistRDD(rdd: RDD[_]) {
     persistentRdds(rdd.id) = rdd
   }
