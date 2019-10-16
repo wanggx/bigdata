@@ -115,6 +115,7 @@ object YarnSparkHadoopUtil {
 
   val ANY_HOST = "*"
 
+  /* 不指定executor数量默认是2个 */
   val DEFAULT_NUMBER_EXECUTORS = 2
 
   // All RM requests are issued with same priority : we do not (yet) have any distinction between
@@ -274,6 +275,7 @@ object YarnSparkHadoopUtil {
       val minNumExecutors = conf.get(DYN_ALLOCATION_MIN_EXECUTORS)
       val initialNumExecutors = Utils.getDynamicAllocationInitialExecutors(conf)
       val maxNumExecutors = conf.get(DYN_ALLOCATION_MAX_EXECUTORS)
+      /* 动态分配的executor必须在范围内，这个和1.6版本还是有点区别 */
       require(initialNumExecutors >= minNumExecutors && initialNumExecutors <= maxNumExecutors,
         s"initial executor number $initialNumExecutors must between min executor number " +
           s"$minNumExecutors and max executor number $maxNumExecutors")

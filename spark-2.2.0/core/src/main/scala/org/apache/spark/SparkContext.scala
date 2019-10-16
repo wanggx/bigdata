@@ -1795,6 +1795,8 @@ class SparkContext(config: SparkConf) extends Logging {
   /**
    * Unpersist an RDD from memory and/or disk storage
    */
+  /*
+   * 在释放rdd的资源的时候是否阻塞，主要是通过blockmanagermaster来发起 */
   private[spark] def unpersistRDD(rddId: Int, blocking: Boolean = true) {
     env.blockManager.master.removeRdd(rddId, blocking)
     persistentRdds.remove(rddId)

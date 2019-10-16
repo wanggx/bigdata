@@ -2515,6 +2515,7 @@ private[spark] object Utils extends Logging {
   /**
    * Return whether dynamic allocation is enabled in the given conf.
    */
+  /* 如果是指定了参数是动态分配，则启用动态分配 */
   def isDynamicAllocationEnabled(conf: SparkConf): Boolean = {
     val dynamicAllocationEnabled = conf.getBoolean("spark.dynamicAllocation.enabled", false)
     dynamicAllocationEnabled &&
@@ -2524,6 +2525,7 @@ private[spark] object Utils extends Logging {
   /**
    * Return the initial number of executors for dynamic allocation.
    */
+  /* 获取动态分配初始化分配的executor数量 */
   def getDynamicAllocationInitialExecutors(conf: SparkConf): Int = {
     if (conf.get(DYN_ALLOCATION_INITIAL_EXECUTORS) < conf.get(DYN_ALLOCATION_MIN_EXECUTORS)) {
       logWarning(s"${DYN_ALLOCATION_INITIAL_EXECUTORS.key} less than " +

@@ -134,6 +134,7 @@ class SparkConf(loadDefaults: Boolean) extends Cloneable with Logging with Seria
    * These variables are stored as properties of the form spark.executorEnv.VAR_NAME
    * (for example spark.executorEnv.PATH) but this method makes them easier to set.
    */
+  /* 通过该参数设置Executor中执行对应的参数 */
   def setExecutorEnv(variable: String, value: String): SparkConf = {
     set("spark.executorEnv." + variable, value)
   }

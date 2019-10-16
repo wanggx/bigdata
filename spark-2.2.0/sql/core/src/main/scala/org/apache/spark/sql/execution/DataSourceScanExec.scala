@@ -427,16 +427,19 @@ case class FileSourceScanExec(
     val splitFiles = selectedPartitions.flatMap { partition =>
       partition.files.flatMap { file =>
         val blockLocations = getBlockLocations(file)
+        /* 如果文件格式是可分割的，则将块切割划分 */
         if (fsRelation.fileFormat.isSplitable(
             fsRelation.sparkSession, fsRelation.options, file.getPath)) {
           (0L until file.getLen by maxSplitBytes).map { offset =>
             val remaining = file.getLen - offset
             val size = if (remaining > maxSplitBytes) maxSplitBytes else remaining
+            /* 获取文件块的主机信息 */
             val hosts = getBlockHosts(blockLocations, offset, size)
             PartitionedFile(
               partition.values, file.getPath.toUri.toString, offset, size, hosts)
           }
         } else {
+          /* 如果是非分割的，则是一个文件一个分区 */
           val hosts = getBlockHosts(blockLocations, 0, file.getLen)
           Seq(PartitionedFile(
             partition.values, file.getPath.toUri.toString, 0, file.getLen, hosts))
@@ -461,6 +464,7 @@ case class FileSourceScanExec(
       currentSize = 0
     }
 
+    /* 对分区进行一次重新计算，也就是说对小文件进行合并 */
     // Assign files to partitions using "First Fit Decreasing" (FFD)
     splitFiles.foreach { file =>
       if (currentSize + file.length > maxSplitBytes) {
@@ -475,6 +479,7 @@ case class FileSourceScanExec(
     new FileScanRDD(fsRelation.sparkSession, readFile, partitions)
   }
 
+  /* 获取一个文件的所有块信息 */
   private def getBlockLocations(file: FileStatus): Array[BlockLocation] = file match {
     case f: LocatedFileStatus => f.getBlockLocations
     case f => Array.empty[BlockLocation]

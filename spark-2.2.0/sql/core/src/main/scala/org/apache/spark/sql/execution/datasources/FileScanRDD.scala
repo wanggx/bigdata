@@ -94,6 +94,7 @@ class FileScanRDD(
       }
 
       private[this] val files = split.asInstanceOf[FilePartition].files.toIterator
+      /* 记录底层RDD的每个Partition具体应该读取那些数据，例如从什么文件读，从什么位置开始，读多少数据 */
       private[this] var currentFile: PartitionedFile = null
       private[this] var currentIterator: Iterator[Object] = null
 
